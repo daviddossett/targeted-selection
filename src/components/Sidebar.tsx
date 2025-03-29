@@ -3,9 +3,10 @@ import React from "react";
 import { useAppContext } from "@/contexts/AppContext";
 import { PropertyEditor } from "./PropertyEditor";
 import { ResetIcon } from "@/components/icons/ResetIcon";
+import { PushUpIcon } from "@/components/icons/PushUpIcon";
 
 export const Sidebar: React.FC = () => {
-  const { editorMode, setEditorMode, getSelectedInstance, getComponentById, resetAllOverrides } = useAppContext();
+  const { editorMode, setEditorMode, getSelectedInstance, getComponentById, resetAllOverrides, pushOverridesToComponent } = useAppContext();
   const [isMac, setIsMac] = React.useState(false);
 
   React.useEffect(() => {
@@ -54,37 +55,30 @@ export const Sidebar: React.FC = () => {
                 editorMode === "component" ? "bg-purple-50 border-purple-200" : "bg-blue-50 border-blue-200"
               }`}
             >
-              <div className="p-2">
+              <div className="px-4 py-3">
                 <div
-                  className={`text-lg font-bold ${editorMode === "component" ? "text-purple-700" : "text-blue-700"}`}
+                  className={`text-xl font-semibold ${
+                    editorMode === "component" ? "text-purple-700" : "text-blue-700"
+                  }`}
                 >
                   {selectedComponent.label}
                 </div>
                 <div className={`text-xs ${editorMode === "component" ? "text-purple-500" : "text-blue-500"}`}>
                   {selectedInstance.id}
                 </div>
-                {hasOverrides && (
-                  <button
-                    onClick={() => selectedInstance && resetAllOverrides(selectedInstance.id)}
-                    className="mt-2 text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
-                  >
-                    <ResetIcon />
-                    Reset all overrides
-                  </button>
-                )}
               </div>
               <div className="p-2 border-t border-inherit">
-                <div className="flex">
+                <div className="flex w-full">
                   <button
                     onClick={() => setEditorMode("component")}
-                    className={`px-3 py-0.5 rounded-l text-xs font-medium cursor-pointer ${
+                    className={`flex-1 px-3 py-1 rounded-l text-xs font-medium cursor-pointer ${
                       editorMode === "component"
                         ? "bg-purple-600 text-white hover:bg-purple-700 border-b-0 border-r-0 border border-purple-800"
                         : "text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"
                     }`}
                   >
-                    <span className="flex items-center gap-1.5">
-                      Component
+                    <span>
+                      Component{" "}
                       <span
                         className={`
                         text-[10px] px-1 py-0.5 rounded transition-colors duration-300
@@ -97,14 +91,14 @@ export const Sidebar: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setEditorMode("instance")}
-                    className={`px-2 py-0.5 rounded-r text-xs font-medium cursor-pointer ${
+                    className={`flex-1 px-3 py-1 rounded-r text-xs font-medium cursor-pointer ${
                       editorMode === "instance"
                         ? "bg-blue-600 text-white hover:bg-blue-700 border-b-0 border-r-0 border border-blue-800"
                         : "text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"
                     }`}
                   >
-                    <span className="flex items-center gap-1.5">
-                      Instance
+                    <span>
+                      Instance{" "}
                       <span
                         className={`
                         text-[10px] px-1 py-0.5 rounded transition-colors duration-300
@@ -123,6 +117,24 @@ export const Sidebar: React.FC = () => {
       </div>
 
       <div>
+        {hasOverrides && editorMode === "instance" && (
+          <div className="px-4 w-full mb-4 flex gap-2">
+            <button
+              onClick={() => selectedInstance && resetAllOverrides(selectedInstance.id)}
+              className="bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer flex-1"
+            >
+              <ResetIcon />
+              Reset all overrides
+            </button>
+            <button
+              onClick={() => selectedInstance && pushOverridesToComponent(selectedInstance.id)}
+              className="bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer"
+              title="Push overrides up to component level"
+            >
+              <PushUpIcon />
+            </button>
+          </div>
+        )}
         {editorMode === "instance" && <PropertyEditor mode="instance" />}
         {editorMode === "component" && <PropertyEditor mode="component" />}
         {!isEditMode && (

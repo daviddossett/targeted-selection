@@ -31,7 +31,6 @@ export interface ComponentProperties {
     text?: string;
     onClick?: string;
     content?: string;
-    element?: string;
     title?: string;
     variant?: string;
 }

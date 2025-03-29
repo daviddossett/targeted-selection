@@ -265,22 +265,26 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
           style={{ width: "280px" }}
         >
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 mb-3">
+          <div className="flex mb-3 border rounded-md overflow-hidden">
             <button
               onClick={() => setActiveTab("tailwind")}
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "tailwind" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"
+              className={`flex-1 px-3 py-1 text-xs font-medium transition-all duration-200 ease-in-out ${
+                activeTab === "tailwind"
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
-              Tailwind Colors
+              Tailwind classes
             </button>
             <button
               onClick={() => setActiveTab("custom")}
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "custom" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"
+              className={`flex-1 px-3 py-1 text-xs font-medium transition-all duration-200 ease-in-out ${
+                activeTab === "custom"
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
-              Custom Color
+              Custom
             </button>
           </div>
 
@@ -293,10 +297,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
                   <button
                     key={group.name}
                     onClick={() => setSelectedColorFamily(group.name)}
-                    className={`px-2 py-1 text-xs rounded-md ${
+                    className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ease-in-out ${
                       selectedColorFamily === group.name
-                        ? "bg-blue-50 text-blue-500"
-                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                        : "bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100"
                     }`}
                   >
                     {group.name}
@@ -372,7 +376,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
                   onChange(customColor);
                   setIsPopoverOpen(false);
                 }}
-                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 w-full"
+                className="bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 inline-flex items-center justify-center px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ease-in-out cursor-pointer w-full"
                 type="button"
               >
                 Apply Custom Color

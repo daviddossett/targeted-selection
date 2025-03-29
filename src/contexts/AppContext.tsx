@@ -21,6 +21,7 @@ interface AppContextType {
   getSelectedInstance: () => ComponentInstance | null;
   getComponentById: (id: string) => ComponentDefinition | undefined;
   resetAllOverrides: (instanceId: string) => void;
+  pushOverridesToComponent: (instanceId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -231,6 +232,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const pushOverridesToComponent = (instanceId: string) => {
+    const instance = findInstance(appDefinition.instances, instanceId);
+    if (!instance) return;
+
+    const component = getComponentById(instance.componentId);
+    if (!component) return;
+
+    // Start updating the app definition
+    setAppDefinition((prev) => {
+      // Update component properties with instance overrides
+      const updatedComponents = prev.components.map((comp) => {
+        if (comp.id === instance.componentId) {
+          return {
+            ...comp,
+            // Merge instance property overrides into component properties
+            properties: {
+              ...comp.properties,
+              ...instance.properties,
+            },
+            // Merge instance style overrides into component default styles
+            defaultStyles: {
+              ...comp.defaultStyles,
+              ...(instance.instanceStyles || {}),
+            },
+          };
+        }
+        return comp;
+      });
+
+      // Reset instance overrides after pushing them up
+      const updatedInstances = updateInstancesRecursively(prev.instances, instanceId, (instance) => ({
+        ...instance,
+        properties: {}, // Reset all property overrides
+        instanceStyles: {}, // Reset all style overrides
+      }));
+
+      return {
+        ...prev,
+        components: updatedComponents,
+        instances: updatedInstances,
+      };
+    });
+  };
+
   const value = {
     appDefinition,
     selectedInstanceId,
@@ -248,6 +293,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     getSelectedInstance,
     getComponentById,
     resetAllOverrides,
+    pushOverridesToComponent,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

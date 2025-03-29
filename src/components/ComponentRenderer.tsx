@@ -153,7 +153,8 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
       );
 
     case "text":
-      const Element = (instance.properties.element || component.properties.element || "p") as ElementType;
+      // Use paragraph by default instead of relying on the now-removed element property
+      const Element = "p" as ElementType;
       const elementClasses: Record<string, string> = {
         h1: "text-4xl font-bold mb-4 leading-tight",
         h2: "text-3xl font-semibold mb-3 leading-snug",
@@ -167,11 +168,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
       };
 
       return (
-        <div
-          className={cn("relative", Element === "span" ? "inline" : "block")}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
+        <div className={cn("relative", "block")} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {SelectedBadge}
           {HoverLabel}
           <Element

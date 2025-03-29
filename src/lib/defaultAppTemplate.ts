@@ -34,7 +34,6 @@ export const defaultAppTemplate: AppDefinition = {
             },
             properties: {
                 content: 'Text content',
-                element: 'p',
             },
         },
         {
@@ -50,7 +49,6 @@ export const defaultAppTemplate: AppDefinition = {
             },
             properties: {
                 content: 'Card Heading',
-                element: 'h2',
             },
         },
         {
@@ -67,9 +65,7 @@ export const defaultAppTemplate: AppDefinition = {
                 alignItems: 'center',
                 justifyContent: 'center',
             },
-            properties: {
-                title: 'Image Placeholder',
-            },
+            properties: {},
         },
         {
             id: 'card',
@@ -134,7 +130,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-1',
                             properties: {
                                 content: 'Product Feature',
-                                element: 'h2',
                             },
                         },
                         {
@@ -143,7 +138,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-1',
                             properties: {
                                 content: 'This is a description of the first card. It provides details about the features and benefits.',
-                                element: 'p',
                             },
                             instanceStyles: {
                                 marginBottom: '1.5rem',
@@ -199,7 +193,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-2',
                             properties: {
                                 content: 'User Experience',
-                                element: 'h2',
                             },
                         },
                         {
@@ -208,7 +201,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-2',
                             properties: {
                                 content: 'The second card explains how our product enhances the user experience and creates engagement.',
-                                element: 'p',
                             },
                             instanceStyles: {
                                 marginBottom: '1.5rem',
@@ -264,7 +256,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-3',
                             properties: {
                                 content: 'Performance',
-                                element: 'h2',
                             },
                         },
                         {
@@ -273,7 +264,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-3',
                             properties: {
                                 content: 'The third card highlights the performance metrics and efficiency improvements of our solution.',
-                                element: 'p',
                             },
                             instanceStyles: {
                                 marginBottom: '1.5rem',
@@ -329,7 +319,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-4',
                             properties: {
                                 content: 'Integration',
-                                element: 'h2',
                             },
                         },
                         {
@@ -338,7 +327,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-4',
                             properties: {
                                 content: 'The fourth card shows how our product integrates with existing workflows and systems.',
-                                element: 'p',
                             },
                             instanceStyles: {
                                 marginBottom: '1.5rem',

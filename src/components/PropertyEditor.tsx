@@ -3,7 +3,6 @@ import React from "react";
 import { useAppContext } from "@/contexts/AppContext";
 import { ComponentStyle } from "@/lib/types";
 import {
-  elementTypeOptions,
   fontSizeOptions,
   borderRadiusOptions,
   boxShadowOptions,
@@ -74,18 +73,6 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
       );
     }
 
-    // Special handling for element property in text components
-    if (key === "element" && component.type === "text") {
-      return (
-        <StyleOptionDropdown
-          options={elementTypeOptions}
-          value={String(currentValue)}
-          onChange={(value) => onChange(value)}
-          placeholder="Select element type"
-        />
-      );
-    }
-
     // For variant or other properties that might benefit from a dropdown
     if (key === "variant") {
       const variantOptions = [
@@ -149,16 +136,31 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     const addInheritOption = (options: { value: string; label: string }[]) => {
       if (mode === "instance") {
         // Create a direct inherit option with empty value but shows what will be inherited
-        return [{ value: "", label: `Inherit (${defaultValue || "None"})` }, ...options];
+        // Use `${key}:inherit` as the value to make it unique
+        return [{ value: `${key}:inherit`, label: `Inherit (${defaultValue || "None"})` }, ...options];
       }
       return options;
+    };
+
+    // Custom handler to intercept the inherit special case
+    const handleStyleChange = (value: string) => {
+      // If it's our special inherit marker, convert to empty string
+      if (value && value.endsWith(":inherit")) {
+        onChange("");
+        return;
+      }
+      onChange(value);
     };
 
     switch (key) {
       case "color":
       case "backgroundColor":
         return (
-          <ColorPicker options={addInheritOption(flatColorOptions)} value={currentValue || ""} onChange={onChange} />
+          <ColorPicker
+            options={addInheritOption(flatColorOptions)}
+            value={currentValue || ""}
+            onChange={handleStyleChange}
+          />
         );
 
       case "fontSize":
@@ -166,7 +168,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           <StyleOptionDropdown
             options={addInheritOption(fontSizeOptions)}
             value={currentValue || ""}
-            onChange={onChange}
+            onChange={handleStyleChange}
             placeholder=""
           />
         );
@@ -176,7 +178,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           <StyleOptionDropdown
             options={addInheritOption(fontWeightOptions)}
             value={currentValue || ""}
-            onChange={onChange}
+            onChange={handleStyleChange}
             placeholder=""
           />
         );
@@ -186,7 +188,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           <StyleOptionDropdown
             options={addInheritOption(borderRadiusOptions)}
             value={currentValue || ""}
-            onChange={onChange}
+            onChange={handleStyleChange}
             placeholder=""
           />
         );
@@ -196,7 +198,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           <StyleOptionDropdown
             options={addInheritOption(boxShadowOptions)}
             value={currentValue || ""}
-            onChange={onChange}
+            onChange={handleStyleChange}
             placeholder=""
           />
         );
@@ -211,7 +213,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           <StyleOptionDropdown
             options={addInheritOption(spacingOptions)}
             value={currentValue || ""}
-            onChange={onChange}
+            onChange={handleStyleChange}
             placeholder=""
           />
         );
@@ -229,7 +231,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           <StyleOptionDropdown
             options={mode === "instance" ? addInheritOption(commonOptions) : commonOptions}
             value={currentValue || ""}
-            onChange={onChange}
+            onChange={mode === "instance" ? handleStyleChange : onChange}
             placeholder=""
           />
         );
@@ -245,44 +247,49 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
       return 0; // Keep original order for other properties
     });
 
+    // Check if component has any properties at all in its definition
+    const hasComponentProperties = Object.keys(component.properties).length > 0;
+
     return (
-      <div className="p-4 space-y-6">
-        <div className="bg-background">
-          <h3 className="text-xs font-semibold mb-4 text-gray-800">Instance properties</h3>
-          <div className="space-y-4">
-            {Object.entries(component.properties).map(([key, defaultValue]) => {
-              const hasOverride =
-                selectedInstance.properties[key as keyof typeof selectedInstance.properties] !== undefined;
-              const currentValue = hasOverride
-                ? selectedInstance.properties[key as keyof typeof selectedInstance.properties]
-                : defaultValue;
-              return (
-                <div key={key} className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-900">
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                  </label>
-                  <div className="flex items-center space-x-2">
-                    {renderPropertyField(key, currentValue, (value) =>
-                      updateInstanceProperty(selectedInstance.id, key, value)
-                    )}
-                    {hasOverride && (
-                      <button
-                        onClick={() => resetInstanceProperty(key)}
-                        className="px-2 py-2 bg-muted text-muted-foreground rounded hover:bg-muted/80"
-                        title="Reset to component default"
-                      >
-                        <ResetIcon />
-                      </button>
-                    )}
+      <div className="p-4 space-y-10">
+        {hasComponentProperties && (
+          <div className="bg-background">
+            <h3 className="text-xs font-semibold mb-4 text-gray-600">Instance properties</h3>
+            <div className="space-y-4">
+              {Object.entries(component.properties).map(([key, defaultValue]) => {
+                const hasOverride =
+                  selectedInstance.properties[key as keyof typeof selectedInstance.properties] !== undefined;
+                const currentValue = hasOverride
+                  ? selectedInstance.properties[key as keyof typeof selectedInstance.properties]
+                  : defaultValue;
+                return (
+                  <div key={key} className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-900">
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      {renderPropertyField(key, currentValue, (value) =>
+                        updateInstanceProperty(selectedInstance.id, key, value)
+                      )}
+                      {hasOverride && (
+                        <button
+                          onClick={() => resetInstanceProperty(key)}
+                          className="px-2 py-2 bg-muted text-muted-foreground rounded hover:bg-muted/80"
+                          title="Reset to component default"
+                        >
+                          <ResetIcon />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="bg-background">
-          <h3 className="text-xs font-semibold mb-4 text-gray-800">Instance styles</h3>
+          <h3 className="text-xs font-semibold mb-4 text-gray-600">Instance styles</h3>
           <div className="space-y-4">
             {sortedInstanceStyles.map(([key, defaultValue]) => {
               const styleKey = key as keyof ComponentStyle;
@@ -328,13 +335,13 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     });
 
     return (
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-10">
         <div className="bg-background">
-          <h3 className="text-xs font-semibold mb-4 text-gray-800">Properties</h3>
+          <h3 className="text-xs font-semibold mb-4 text-gray-600">Properties</h3>
           <div className="space-y-4">
             {Object.entries(component.properties).map(([key, value]) => (
               <div key={key} className="space-y-1">
-                <label className="block text-sm font-regular text-gray-900">
+                <label className="block text-sm font-medium text-gray-900">
                   {key.charAt(0).toUpperCase() + key.slice(1)}
                 </label>
                 {renderPropertyField(key, value as string, (newValue) =>
@@ -346,7 +353,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
         </div>
 
         <div className="bg-background">
-          <h3 className="text-xs font-semibold mb-4 text-gray-800">Styles</h3>
+          <h3 className="text-xs font-semibold mb-4 text-gray-600">Styles</h3>
           <div className="space-y-4">
             {sortedDefaultStyles.map(([key, value]) => {
               const styleKey = key as keyof ComponentStyle;
