@@ -122,7 +122,7 @@ export const Sidebar: React.FC = () => {
         )}
       </div>
 
-      <div className="flex-1 overflow-auto flex">
+      <div>
         {editorMode === "instance" && <PropertyEditor mode="instance" />}
         {editorMode === "component" && <PropertyEditor mode="component" />}
         {!isEditMode && (
