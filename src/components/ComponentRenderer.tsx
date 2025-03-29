@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ElementType } from "react";
-import { ComponentInstance } from "@/lib/types";
+import { ComponentInstance, ComponentStyle } from "@/lib/types";
 import { useAppContext } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -91,34 +91,78 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   // Get combined styles (merge default styles with instance overrides)
   const getStyles = () => {
     // Start with component default styles
-    const styles = { ...component.defaultStyles };
+    const baseStyles = { ...component.defaultStyles };
 
-    // Apply instance style overrides if they exist
-    if (instance.instanceStyles) {
-      // First check if we need to handle margin conflicts
-      const hasMarginShorthand = styles.margin !== undefined;
-      const hasMarginOverrides =
-        instance.instanceStyles.marginBottom !== undefined ||
-        instance.instanceStyles.marginTop !== undefined ||
-        instance.instanceStyles.marginRight !== undefined;
-
-      // If we have both margin shorthand and specific margin overrides, we need to remove the shorthand
-      if (hasMarginShorthand && hasMarginOverrides) {
-        delete styles.margin;
-      }
-
-      // Now apply all instance style overrides
-      Object.entries(instance.instanceStyles).forEach(([key, value]) => {
-        if (value) {
-          styles[key as keyof typeof styles] = value;
-        }
-      });
+    // If no instance styles, just return the component styles
+    if (!instance.instanceStyles || Object.keys(instance.instanceStyles).length === 0) {
+      return baseStyles;
     }
 
-    return styles;
+    // Create a new object for the final styles
+    const finalStyles: ComponentStyle = {};
+
+    // Process component default styles first
+    const componentStyleEntries = Object.entries(baseStyles);
+    for (const [key, value] of componentStyleEntries) {
+      if (value !== undefined) {
+        // Cast key to keyof ComponentStyle since we know it's a valid style property
+        finalStyles[key as keyof ComponentStyle] = value;
+      }
+    }
+
+    // Handle conflicts before applying instance overrides
+
+    // If instance has individual margin properties, don't use margin shorthand from component
+    if (
+      finalStyles.margin &&
+      (instance.instanceStyles.marginTop ||
+        instance.instanceStyles.marginRight ||
+        instance.instanceStyles.marginBottom ||
+        instance.instanceStyles.marginLeft)
+    ) {
+      delete finalStyles.margin;
+    }
+
+    // If instance has margin shorthand, remove any individual margin properties
+    if (instance.instanceStyles.margin) {
+      delete finalStyles.marginTop;
+      delete finalStyles.marginRight;
+      delete finalStyles.marginBottom;
+      delete finalStyles.marginLeft;
+    }
+
+    // If instance has individual padding properties, don't use padding shorthand from component
+    if (
+      finalStyles.padding &&
+      (instance.instanceStyles.paddingTop ||
+        instance.instanceStyles.paddingRight ||
+        instance.instanceStyles.paddingBottom ||
+        instance.instanceStyles.paddingLeft)
+    ) {
+      delete finalStyles.padding;
+    }
+
+    // If instance has padding shorthand, remove any individual padding properties
+    if (instance.instanceStyles.padding) {
+      delete finalStyles.paddingTop;
+      delete finalStyles.paddingRight;
+      delete finalStyles.paddingBottom;
+      delete finalStyles.paddingLeft;
+    }
+
+    // Apply instance style overrides
+    const instanceStyleEntries = Object.entries(instance.instanceStyles);
+    for (const [key, value] of instanceStyleEntries) {
+      if (value !== undefined) {
+        // Cast key to keyof ComponentStyle since we know it's a valid style property
+        finalStyles[key as keyof ComponentStyle] = value;
+      }
+    }
+
+    return finalStyles;
   };
 
-  // Cast styles to CSS properties with proper type assertion
+  // Use the styles directly with type assertion for React compatibility
   const combinedStyles = getStyles() as React.CSSProperties;
 
   switch (component.type) {

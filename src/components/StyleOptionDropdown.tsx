@@ -4,6 +4,7 @@ import React from "react";
 interface StyleOption {
   value: string;
   label: string;
+  id?: string; // Optional unique identifier
 }
 
 interface StyleOptionDropdownProps {
@@ -33,8 +34,8 @@ export const StyleOptionDropdown: React.FC<StyleOptionDropdownProps> = ({
             {placeholder}
           </option>
         )}
-        {options.map((option) => (
-          <option key={option.value} value={option.value} className="bg-white text-gray-900">
+        {options.map((option, index) => (
+          <option key={option.id || `${option.value}-${index}`} value={option.value} className="bg-white text-gray-900">
             {option.label}
           </option>
         ))}

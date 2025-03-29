@@ -5,10 +5,15 @@ export interface ComponentStyle {
     color?: string;
     borderRadius?: string;
     padding?: string;
+    paddingTop?: string;
+    paddingRight?: string;
+    paddingBottom?: string;
+    paddingLeft?: string;
     margin?: string;
-    marginBottom?: string;
-    marginRight?: string;
     marginTop?: string;
+    marginRight?: string;
+    marginBottom?: string;
+    marginLeft?: string;
     fontSize?: string;
     fontWeight?: string;
     width?: string;

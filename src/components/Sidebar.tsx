@@ -6,7 +6,14 @@ import { ResetIcon } from "@/components/icons/ResetIcon";
 import { PushUpIcon } from "@/components/icons/PushUpIcon";
 
 export const Sidebar: React.FC = () => {
-  const { editorMode, setEditorMode, getSelectedInstance, getComponentById, resetAllOverrides, pushOverridesToComponent } = useAppContext();
+  const {
+    editorMode,
+    setEditorMode,
+    getSelectedInstance,
+    getComponentById,
+    resetAllOverrides,
+    pushOverridesToComponent,
+  } = useAppContext();
   const [isMac, setIsMac] = React.useState(false);
 
   React.useEffect(() => {

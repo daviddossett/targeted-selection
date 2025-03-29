@@ -220,12 +220,33 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
 
       // For any other style properties use a dropdown with common options
       default:
-        const commonOptions = [
-          { value: currentValue || "", label: currentValue || "None" },
+        // Create common options without duplicates
+        const commonOptions = [];
+
+        // Add current value first (if it exists)
+        if (currentValue) {
+          commonOptions.push({ value: currentValue, label: currentValue });
+        } else {
+          commonOptions.push({ value: "", label: "None" });
+        }
+
+        // Add standard options, but skip if they would create duplicates
+        const standardValues = [
           { value: "auto", label: "Auto" },
           { value: "100%", label: "100%" },
           { value: "initial", label: "Initial" },
         ];
+
+        standardValues.forEach((option) => {
+          // Only add if not a duplicate of the current value
+          if (option.value !== currentValue) {
+            commonOptions.push({
+              value: option.value,
+              label: option.label,
+              id: `std-${option.value}`, // Add unique id to prevent key conflicts
+            });
+          }
+        });
 
         return (
           <StyleOptionDropdown
