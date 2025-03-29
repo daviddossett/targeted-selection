@@ -7,19 +7,19 @@ export const defaultAppTemplate: AppDefinition = {
             type: 'button',
             label: 'Button',
             defaultStyles: {
-                backgroundColor: 'hsl(var(--primary))',
-                color: 'hsl(var(--primary-foreground))',
-                borderRadius: 'var(--radius)',
-                padding: 'var(--button-padding)',
-                fontSize: 'var(--font-size-sm)',
+                borderRadius: '0.375rem',
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
                 fontWeight: '500',
-                border: 'none',
                 cursor: 'pointer',
-                boxShadow: 'var(--shadow-sm)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
             },
             properties: {
-                text: 'Click me',
+                text: 'Button',
                 onClick: 'alert("Button clicked")',
+                variant: 'primary',
             },
         },
         {
@@ -28,9 +28,9 @@ export const defaultAppTemplate: AppDefinition = {
             label: 'Text',
             defaultStyles: {
                 color: 'hsl(var(--foreground))',
-                fontSize: 'var(--font-size-base)',
-                lineHeight: 'var(--line-height-base)',
+                fontSize: '1rem',
                 margin: '0',
+                lineHeight: '1.5',
             },
             properties: {
                 content: 'Text content',
@@ -38,34 +38,66 @@ export const defaultAppTemplate: AppDefinition = {
             },
         },
         {
+            id: 'heading',
+            type: 'text',
+            label: 'Heading',
+            defaultStyles: {
+                color: 'hsl(var(--foreground))',
+                fontSize: '1.5rem',
+                fontWeight: '600',
+                margin: '0 0 0.75rem 0',
+                lineHeight: '1.2',
+            },
+            properties: {
+                content: 'Card Heading',
+                element: 'h2',
+            },
+        },
+        {
+            id: 'image',
+            type: 'container',
+            label: 'Image',
+            defaultStyles: {
+                backgroundColor: '#f3f4f6',
+                borderRadius: '0.375rem',
+                width: '100%',
+                height: '150px',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
+            properties: {
+                title: 'Image Placeholder',
+            },
+        },
+        {
             id: 'card',
             type: 'card',
             label: 'Card',
             defaultStyles: {
-                backgroundColor: 'hsl(var(--card))',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--spacing-6)',
-                boxShadow: 'var(--shadow-md)',
+                backgroundColor: 'white',
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
                 width: '100%',
-                border: '1px solid hsl(var(--border))',
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
             },
             properties: {
-                title: 'Card Title',
+                title: '',
             },
         },
         {
-            id: 'container',
+            id: 'grid',
             type: 'container',
-            label: 'Container',
+            label: 'Grid',
             defaultStyles: {
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 'var(--spacing-4)',
-                padding: 'var(--spacing-4)',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '1.5rem',
                 width: '100%',
-                backgroundColor: 'hsl(var(--background))',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid hsl(var(--border))',
+                maxWidth: '900px',
+                margin: '0 auto',
             },
             properties: {
                 title: '',
@@ -74,222 +106,275 @@ export const defaultAppTemplate: AppDefinition = {
     ],
     instances: [
         {
-            id: 'root',
-            componentId: 'container',
+            id: 'main-grid',
+            componentId: 'grid',
             properties: {
-                title: 'Registration Form',
-            },
-            instanceStyles: {
-                padding: 'var(--spacing-4)',
-                maxWidth: '500px',
-                margin: '0 auto',
+                title: '',
             },
             children: [
+                // Card 1
                 {
-                    id: 'header-section',
-                    componentId: 'container',
-                    parentId: 'root',
+                    id: 'card-1',
+                    componentId: 'card',
+                    parentId: 'main-grid',
                     properties: {
-                        title: 'Header',
-                    },
-                    instanceStyles: {
-                        padding: 'var(--spacing-4)',
-                        backgroundColor: 'hsl(var(--muted))',
-                        borderRadius: 'var(--radius-xl)',
-                        marginBottom: 'var(--spacing-6)',
+                        title: '',
                     },
                     children: [
                         {
-                            id: 'header-text',
-                            componentId: 'text',
-                            parentId: 'header-section',
+                            id: 'image-1',
+                            componentId: 'image',
+                            parentId: 'card-1',
                             properties: {
-                                content: 'Create your account',
-                                element: 'h1',
+                                title: 'Image 1',
                             },
                             instanceStyles: {
-                                fontSize: 'var(--font-size-2xl)',
-                                fontWeight: '700',
-                                marginBottom: 'var(--spacing-2)',
+                                backgroundColor: '#e0f2fe',
                             },
                         },
                         {
-                            id: 'subheader-text',
-                            componentId: 'text',
-                            parentId: 'header-section',
+                            id: 'heading-1',
+                            componentId: 'heading',
+                            parentId: 'card-1',
                             properties: {
-                                content: 'Fill in your details to get started',
+                                content: 'Product Feature',
+                                element: 'h2',
+                            },
+                        },
+                        {
+                            id: 'description-1',
+                            componentId: 'text',
+                            parentId: 'card-1',
+                            properties: {
+                                content: 'This is a description of the first card. It provides details about the features and benefits.',
                                 element: 'p',
                             },
                             instanceStyles: {
-                                fontSize: 'var(--font-size-lg)',
-                                color: 'hsl(var(--muted-foreground))',
+                                marginBottom: '1.5rem',
+                            },
+                        },
+                        {
+                            id: 'button-primary-1',
+                            componentId: 'button',
+                            parentId: 'card-1',
+                            properties: {
+                                text: 'Learn More',
+                                onClick: 'alert("Learn more clicked!")',
+                                variant: 'primary',
+                            },
+                            instanceStyles: {
+                                marginRight: '0.5rem',
+                            },
+                        },
+                        {
+                            id: 'button-secondary-1',
+                            componentId: 'button',
+                            parentId: 'card-1',
+                            properties: {
+                                text: 'Dismiss',
+                                onClick: 'alert("Dismissed!")',
+                                variant: 'secondary',
                             },
                         },
                     ],
                 },
+
+                // Card 2
                 {
-                    id: 'form-section',
+                    id: 'card-2',
                     componentId: 'card',
-                    parentId: 'root',
+                    parentId: 'main-grid',
                     properties: {
-                        title: 'Registration Form',
-                    },
-                    instanceStyles: {
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 'var(--spacing-4)',
+                        title: '',
                     },
                     children: [
                         {
-                            id: 'name-field',
-                            componentId: 'container',
-                            parentId: 'form-section',
+                            id: 'image-2',
+                            componentId: 'image',
+                            parentId: 'card-2',
                             properties: {
-                                title: 'Name Field',
+                                title: 'Image 2',
                             },
                             instanceStyles: {
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 'var(--spacing-2)',
-                                padding: '0',
-                                border: 'none',
-                                backgroundColor: 'transparent',
+                                backgroundColor: '#fef3c7',
                             },
-                            children: [
-                                {
-                                    id: 'name-label',
-                                    componentId: 'text',
-                                    parentId: 'name-field',
-                                    properties: {
-                                        content: 'Full Name',
-                                        element: 'label',
-                                    },
-                                    instanceStyles: {
-                                        fontWeight: '500',
-                                        fontSize: 'var(--font-size-sm)',
-                                    },
-                                },
-                                {
-                                    id: 'name-input',
-                                    componentId: 'container',
-                                    parentId: 'name-field',
-                                    properties: {
-                                        title: 'Name Input',
-                                    },
-                                    instanceStyles: {
-                                        height: '40px',
-                                        padding: '0 12px',
-                                        border: '1px solid hsl(var(--border))',
-                                        borderRadius: 'var(--radius)',
-                                        backgroundColor: 'hsl(var(--background))',
-                                    },
-                                },
-                            ],
                         },
                         {
-                            id: 'description-field',
-                            componentId: 'container',
-                            parentId: 'form-section',
+                            id: 'heading-2',
+                            componentId: 'heading',
+                            parentId: 'card-2',
                             properties: {
-                                title: 'Description Field',
+                                content: 'User Experience',
+                                element: 'h2',
+                            },
+                        },
+                        {
+                            id: 'description-2',
+                            componentId: 'text',
+                            parentId: 'card-2',
+                            properties: {
+                                content: 'The second card explains how our product enhances the user experience and creates engagement.',
+                                element: 'p',
                             },
                             instanceStyles: {
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 'var(--spacing-2)',
-                                padding: '0',
-                                border: 'none',
-                                backgroundColor: 'transparent',
+                                marginBottom: '1.5rem',
                             },
-                            children: [
-                                {
-                                    id: 'description-label',
-                                    componentId: 'text',
-                                    parentId: 'description-field',
-                                    properties: {
-                                        content: 'Description',
-                                        element: 'label',
-                                    },
-                                    instanceStyles: {
-                                        fontWeight: '500',
-                                        fontSize: 'var(--font-size-sm)',
-                                    },
-                                },
-                                {
-                                    id: 'description-input',
-                                    componentId: 'container',
-                                    parentId: 'description-field',
-                                    properties: {
-                                        title: 'Description Input',
-                                    },
-                                    instanceStyles: {
-                                        height: '100px',
-                                        padding: '12px',
-                                        border: '1px solid hsl(var(--border))',
-                                        borderRadius: 'var(--radius)',
-                                        backgroundColor: 'hsl(var(--background))',
-                                    },
-                                },
-                            ],
                         },
                         {
-                            id: 'company-field',
-                            componentId: 'container',
-                            parentId: 'form-section',
-                            properties: {
-                                title: 'Company Field',
-                            },
-                            instanceStyles: {
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 'var(--spacing-2)',
-                                padding: '0',
-                                border: 'none',
-                                backgroundColor: 'transparent',
-                            },
-                            children: [
-                                {
-                                    id: 'company-label',
-                                    componentId: 'text',
-                                    parentId: 'company-field',
-                                    properties: {
-                                        content: 'Company',
-                                        element: 'label',
-                                    },
-                                    instanceStyles: {
-                                        fontWeight: '500',
-                                        fontSize: 'var(--font-size-sm)',
-                                    },
-                                },
-                                {
-                                    id: 'company-input',
-                                    componentId: 'container',
-                                    parentId: 'company-field',
-                                    properties: {
-                                        title: 'Company Input',
-                                    },
-                                    instanceStyles: {
-                                        height: '40px',
-                                        padding: '0 12px',
-                                        border: '1px solid hsl(var(--border))',
-                                        borderRadius: 'var(--radius)',
-                                        backgroundColor: 'hsl(var(--background))',
-                                    },
-                                },
-                            ],
-                        },
-                        {
-                            id: 'submit-button',
+                            id: 'button-primary-2',
                             componentId: 'button',
-                            parentId: 'form-section',
+                            parentId: 'card-2',
                             properties: {
-                                text: 'Register Now',
-                                onClick: 'alert("Form submitted!")',
+                                text: 'Get Started',
+                                onClick: 'alert("Getting started!")',
+                                variant: 'primary',
                             },
                             instanceStyles: {
-                                margin: 'var(--spacing-4) 0 0 0',
-                                width: '100%',
+                                marginRight: '0.5rem',
+                            },
+                        },
+                        {
+                            id: 'button-secondary-2',
+                            componentId: 'button',
+                            parentId: 'card-2',
+                            properties: {
+                                text: 'Learn More',
+                                onClick: 'alert("Learn more clicked!")',
+                                variant: 'secondary',
+                            },
+                        },
+                    ],
+                },
+
+                // Card 3
+                {
+                    id: 'card-3',
+                    componentId: 'card',
+                    parentId: 'main-grid',
+                    properties: {
+                        title: '',
+                    },
+                    children: [
+                        {
+                            id: 'image-3',
+                            componentId: 'image',
+                            parentId: 'card-3',
+                            properties: {
+                                title: 'Image 3',
+                            },
+                            instanceStyles: {
+                                backgroundColor: '#dcfce7',
+                            },
+                        },
+                        {
+                            id: 'heading-3',
+                            componentId: 'heading',
+                            parentId: 'card-3',
+                            properties: {
+                                content: 'Performance',
+                                element: 'h2',
+                            },
+                        },
+                        {
+                            id: 'description-3',
+                            componentId: 'text',
+                            parentId: 'card-3',
+                            properties: {
+                                content: 'The third card highlights the performance metrics and efficiency improvements of our solution.',
+                                element: 'p',
+                            },
+                            instanceStyles: {
+                                marginBottom: '1.5rem',
+                            },
+                        },
+                        {
+                            id: 'button-primary-3',
+                            componentId: 'button',
+                            parentId: 'card-3',
+                            properties: {
+                                text: 'View Demo',
+                                onClick: 'alert("Demo viewed!")',
+                                variant: 'primary',
+                            },
+                            instanceStyles: {
+                                marginRight: '0.5rem',
+                            },
+                        },
+                        {
+                            id: 'button-secondary-3',
+                            componentId: 'button',
+                            parentId: 'card-3',
+                            properties: {
+                                text: 'Documentation',
+                                onClick: 'alert("Documentation clicked!")',
+                                variant: 'secondary',
+                            },
+                        },
+                    ],
+                },
+
+                // Card 4
+                {
+                    id: 'card-4',
+                    componentId: 'card',
+                    parentId: 'main-grid',
+                    properties: {
+                        title: '',
+                    },
+                    children: [
+                        {
+                            id: 'image-4',
+                            componentId: 'image',
+                            parentId: 'card-4',
+                            properties: {
+                                title: 'Image 4',
+                            },
+                            instanceStyles: {
+                                backgroundColor: '#ddd6fe',
+                            },
+                        },
+                        {
+                            id: 'heading-4',
+                            componentId: 'heading',
+                            parentId: 'card-4',
+                            properties: {
+                                content: 'Integration',
+                                element: 'h2',
+                            },
+                        },
+                        {
+                            id: 'description-4',
+                            componentId: 'text',
+                            parentId: 'card-4',
+                            properties: {
+                                content: 'The fourth card shows how our product integrates with existing workflows and systems.',
+                                element: 'p',
+                            },
+                            instanceStyles: {
+                                marginBottom: '1.5rem',
+                            },
+                        },
+                        {
+                            id: 'button-primary-4',
+                            componentId: 'button',
+                            parentId: 'card-4',
+                            properties: {
+                                text: 'Connect',
+                                onClick: 'alert("Connect clicked!")',
+                                variant: 'primary',
+                            },
+                            instanceStyles: {
+                                marginRight: '0.5rem',
+                            },
+                        },
+                        {
+                            id: 'button-secondary-4',
+                            componentId: 'button',
+                            parentId: 'card-4',
+                            properties: {
+                                text: 'API Docs',
+                                onClick: 'alert("API Docs clicked!")',
+                                variant: 'secondary',
                             },
                         },
                     ],

@@ -7,6 +7,8 @@ export interface ComponentStyle {
     padding?: string;
     margin?: string;
     marginBottom?: string;
+    marginRight?: string;
+    marginTop?: string;
     fontSize?: string;
     fontWeight?: string;
     width?: string;
@@ -31,6 +33,7 @@ export interface ComponentProperties {
     content?: string;
     element?: string;
     title?: string;
+    variant?: string;
 }
 
 export interface ComponentDefinition {

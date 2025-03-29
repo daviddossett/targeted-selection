@@ -85,10 +85,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         if (value === undefined) {
           // If value is undefined, remove the property to reset to component default
-          delete updatedProperties[key];
+          // Use type assertion to tell TypeScript this is a valid operation
+          delete (updatedProperties as Record<string, unknown>)[key];
         } else {
           // Otherwise set the new value
-          updatedProperties[key] = value;
+          // Use type assertion to tell TypeScript this is a valid operation
+          (updatedProperties as Record<string, unknown>)[key] = value;
         }
 
         return {
@@ -187,12 +189,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isProperty: boolean
   ): ComponentInstance[] => {
     return instances.map((instance) => {
+      // Create a new instance reference to ensure re-render
       let updatedInstance = { ...instance };
 
       // Update this instance if it's using the changed component
       if (instance.componentId === componentId) {
-        // Nothing needs to be changed for instances that use the default
-        // They will automatically use the updated component value
+        // Create a new instance reference even for instances that use the default values
+        // This is necessary to trigger re-renders in React
+        updatedInstance = { ...updatedInstance };
       }
 
       // If instance has children, recursively update them

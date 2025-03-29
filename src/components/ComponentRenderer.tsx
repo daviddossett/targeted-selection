@@ -1,6 +1,6 @@
 "use client";
 
-import React, { CSSProperties, ElementType } from "react";
+import React, { ElementType } from "react";
 import { ComponentInstance } from "@/lib/types";
 import { useAppContext } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,8 @@ interface ComponentRendererProps {
 }
 
 export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }) => {
-  const { getComponentById, selectInstance, selectedInstanceId, isSelectMode, editorMode, resetAllOverrides } = useAppContext();
+  const { getComponentById, selectInstance, selectedInstanceId, isSelectMode, editorMode, resetAllOverrides } =
+    useAppContext();
   const component = getComponentById(instance.componentId);
   const [isHovered, setIsHovered] = React.useState(false);
 
@@ -39,9 +40,10 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
     ? "outline outline-dashed outline-gray-300 outline-offset-2 cursor-pointer relative"
     : "";
 
-  const hoverClasses = isHovered && editorMode !== "preview" && !isSelected
-    ? "outline outline-2 outline-dashed outline-emerald-500 outline-offset-2 relative"
-    : "";
+  const hoverClasses =
+    isHovered && editorMode !== "preview" && !isSelected
+      ? "outline outline-2 outline-dashed outline-emerald-500 outline-offset-2 relative"
+      : "";
 
   // Mouse event handlers
   const handleMouseEnter = () => {
@@ -56,10 +58,10 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
   // Badge to show when element is selected
   const SelectedBadge = isSelected ? (
-    <div
-      className="absolute -top-6 left-0 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10"
-    >
-      <span><span className="font-medium">{component.label}</span> - {instance.id}</span>
+    <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10">
+      <span>
+        <span className="font-medium">{component.label}</span> - {instance.id}
+      </span>
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -76,9 +78,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   // Hover label to show element type when hovering
   const HoverLabel =
     isHovered && editorMode !== "preview" && !isSelected ? (
-      <div
-        className="absolute -top-6 left-0 bg-green-500 text-white text-xs py-1 px-2 rounded-t-md z-9"
-      >
+      <div className="absolute -top-6 left-0 bg-green-500 text-white text-xs py-1 px-2 rounded-t-md z-9">
         {component.label}
       </div>
     ) : null;
@@ -88,21 +88,51 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
     return instance.children.map((child) => <ComponentRenderer key={child.id} instance={child} />);
   };
 
+  // Get combined styles (merge default styles with instance overrides)
+  const getStyles = () => {
+    // Start with component default styles
+    const styles = { ...component.defaultStyles };
+
+    // Apply instance style overrides if they exist
+    if (instance.instanceStyles) {
+      Object.entries(instance.instanceStyles).forEach(([key, value]) => {
+        if (value) {
+          styles[key as keyof typeof styles] = value;
+        }
+      });
+    }
+
+    return styles;
+  };
+
+  // Cast styles to CSS properties with proper type assertion
+  const combinedStyles = getStyles() as React.CSSProperties;
+
   switch (component.type) {
     case "button":
+      // Map our variant names to the actual variant names used by the Button component
+      const variantMapping: Record<string, "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"> = {
+        primary: "default",
+        secondary: "secondary",
+        outline: "outline",
+        destructive: "destructive",
+        ghost: "ghost",
+        link: "link"
+      };
+      
+      const buttonVariant = instance.properties.variant || component.properties.variant || "primary";
+      const mappedVariant = variantMapping[buttonVariant] || "default";
+      
       return (
-        <div
-          className="relative inline-block"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
+        <div className="relative inline-block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {SelectedBadge}
           {HoverLabel}
           <Button
             onClick={handleClick}
             className={cn(selectionClasses, hoverClasses)}
-            variant="ghost"
-            size="sm"
+            style={combinedStyles}
+            variant={mappedVariant}
+            size="default"
           >
             {instance.properties.text !== undefined ? instance.properties.text : component.properties.text}
           </Button>
@@ -125,10 +155,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
       return (
         <div
-          className={cn(
-            "relative",
-            Element === "span" ? "inline" : "block"
-          )}
+          className={cn("relative", Element === "span" ? "inline" : "block")}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -136,32 +163,20 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
           {HoverLabel}
           <Element
             onClick={handleClick}
-            className={cn(
-              elementClasses[Element as keyof typeof elementClasses],
-              selectionClasses,
-              hoverClasses
-            )}
+            className={cn(elementClasses[Element as keyof typeof elementClasses], selectionClasses, hoverClasses)}
+            style={combinedStyles}
           >
-            {instance.properties.content !== undefined
-              ? instance.properties.content
-              : component.properties.content}
+            {instance.properties.content !== undefined ? instance.properties.content : component.properties.content}
           </Element>
         </div>
       );
 
     case "card":
       return (
-        <div
-          className="relative block"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
+        <div className="relative block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {SelectedBadge}
           {HoverLabel}
-          <Card
-            onClick={handleClick}
-            className={cn(selectionClasses, hoverClasses)}
-          >
+          <Card onClick={handleClick} className={cn(selectionClasses, hoverClasses)} style={combinedStyles}>
             {(instance.properties.title !== undefined ? instance.properties.title : component.properties.title) && (
               <CardHeader>
                 <CardTitle>
@@ -169,20 +184,14 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
                 </CardTitle>
               </CardHeader>
             )}
-            <CardContent>
-              {renderChildren()}
-            </CardContent>
+            <CardContent>{renderChildren()}</CardContent>
           </Card>
         </div>
       );
 
     case "container":
       return (
-        <div
-          className="relative block"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
+        <div className="relative block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {SelectedBadge}
           {HoverLabel}
           <div
@@ -192,6 +201,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
               selectionClasses,
               hoverClasses
             )}
+            style={combinedStyles}
           >
             {(instance.properties.title !== undefined ? instance.properties.title : component.properties.title) && (
               <>

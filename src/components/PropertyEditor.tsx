@@ -157,6 +157,14 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
   };
 
   if (mode === "instance") {
+    // Sort the style entries to prioritize colors
+    const sortedInstanceStyles = Object.entries(component.defaultStyles).sort(([keyA], [keyB]) => {
+      // Color properties should come first
+      if (keyA === "color" || keyA === "backgroundColor") return -1;
+      if (keyB === "color" || keyB === "backgroundColor") return 1;
+      return 0; // Keep original order for other properties
+    });
+
     return (
       <div className="p-4">
         <h3 className="text-lg font-medium mb-4">Instance Properties</h3>
@@ -193,7 +201,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
         </div>
         <h3 className="text-lg font-medium my-4">Instance Styles</h3>
         <div className="space-y-4">
-          {Object.entries(component.defaultStyles).map(([key, defaultValue]) => {
+          {sortedInstanceStyles.map(([key, defaultValue]) => {
             const styleKey = key as keyof ComponentStyle;
             const instanceStyleValue = selectedInstance.instanceStyles?.[styleKey];
             const hasOverride = instanceStyleValue !== undefined && instanceStyleValue !== "";
@@ -228,6 +236,14 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     );
   } else {
     // Component editing mode
+    // Sort the style entries to prioritize colors
+    const sortedDefaultStyles = Object.entries(component.defaultStyles).sort(([keyA], [keyB]) => {
+      // Color properties should come first
+      if (keyA === "color" || keyA === "backgroundColor") return -1;
+      if (keyB === "color" || keyB === "backgroundColor") return 1;
+      return 0; // Keep original order for other properties
+    });
+
     return (
       <div className="p-4">
         <h3 className="text-lg font-medium mb-4">Component Properties</h3>
@@ -245,7 +261,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
         </div>
         <h3 className="text-lg font-medium my-4">Default Styles</h3>
         <div className="space-y-4">
-          {Object.entries(component.defaultStyles).map(([key, value]) => {
+          {sortedDefaultStyles.map(([key, value]) => {
             const styleKey = key as keyof ComponentStyle;
             return (
               <div key={styleKey} className="space-y-1">
