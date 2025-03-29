@@ -45,7 +45,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <div className="w-full h-full bg-card border-r border-gray-200 flex flex-col">
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4">
         {isEditMode && selectedInstance && selectedComponent && (
           <div className="flex flex-col space-y-4">
             {/* Combined Edit Mode and Selection Badge */}
@@ -122,12 +122,12 @@ export const Sidebar: React.FC = () => {
         )}
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto flex">
         {editorMode === "instance" && <PropertyEditor mode="instance" />}
         {editorMode === "component" && <PropertyEditor mode="component" />}
         {!isEditMode && (
           <div className="p-4 text-muted-foreground">
-            <p>Toggle edit mode in the preview to start editing.</p>
+            <p className="text-sm">Toggle edit mode in the preview to start editing.</p>
           </div>
         )}
       </div>

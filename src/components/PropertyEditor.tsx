@@ -32,7 +32,9 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
   if (!selectedInstance) {
     return (
       <div className="p-4 text-muted-foreground">
-        No element selected. Enter select mode and click on an element to edit its properties.
+        <p className="text-sm">
+          No element selected. Enter select mode and click on an element to edit its properties.
+        </p>
       </div>
     );
   }

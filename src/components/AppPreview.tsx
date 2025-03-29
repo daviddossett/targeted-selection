@@ -42,7 +42,7 @@ export const AppPreview: React.FC = () => {
   return (
     <div className="w-full h-full bg-background flex flex-col">
       {/* Toolbar */}
-      <div className="border-b border-gray-200 bg-white px-4 py-2 flex justify-center">
+      <div className="bg-white px-4 py-4 flex justify-center">
         <button
           onClick={toggleEditMode}
           className={`

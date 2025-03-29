@@ -117,12 +117,12 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
         outline: "outline",
         destructive: "destructive",
         ghost: "ghost",
-        link: "link"
+        link: "link",
       };
-      
+
       const buttonVariant = instance.properties.variant || component.properties.variant || "primary";
       const mappedVariant = variantMapping[buttonVariant] || "default";
-      
+
       return (
         <div className="relative inline-block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {SelectedBadge}
@@ -196,11 +196,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
           {HoverLabel}
           <div
             onClick={handleClick}
-            className={cn(
-              "flex flex-col gap-4 p-4 w-full bg-background rounded-lg border",
-              selectionClasses,
-              hoverClasses
-            )}
+            className={cn("flex flex-col gap-4 w-full", selectionClasses, hoverClasses)}
             style={combinedStyles}
           >
             {(instance.properties.title !== undefined ? instance.properties.title : component.properties.title) && (
