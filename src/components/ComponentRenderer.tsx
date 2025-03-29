@@ -3,24 +3,24 @@
 import React, { CSSProperties, ElementType } from "react";
 import { ComponentInstance } from "@/lib/types";
 import { useAppContext } from "@/contexts/AppContext";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ResetIcon } from "@/components/icons/ResetIcon";
+import { cn } from "@/lib/utils";
 
 interface ComponentRendererProps {
   instance: ComponentInstance;
 }
 
 export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }) => {
-  const { getComponentById, selectInstance, selectedInstanceId, isSelectMode, editorMode } = useAppContext();
+  const { getComponentById, selectInstance, selectedInstanceId, isSelectMode, editorMode, resetAllOverrides } = useAppContext();
   const component = getComponentById(instance.componentId);
   const [isHovered, setIsHovered] = React.useState(false);
 
   if (!component) {
     return <div>Component not found: {instance.componentId}</div>;
   }
-
-  const mergedStyles = {
-    ...component.defaultStyles,
-    ...(instance.instanceStyles || {}),
-  };
 
   const handleClick = (e: React.MouseEvent) => {
     // In edit mode, components should always be selectable
@@ -32,31 +32,16 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
   const isSelected = selectedInstanceId === instance.id;
 
-  // Enhanced selection styling
-  const selectionStyles: CSSProperties = isSelected
-    ? {
-        outline: "3px solid #0070f3",
-        outlineOffset: "2px",
-        position: "relative",
-      }
+  // Selection and hover classes
+  const selectionClasses = isSelected
+    ? "outline outline-3 outline-blue-500 outline-offset-2 relative"
     : isSelectMode
-    ? {
-        outline: isSelectMode ? "1px dashed #aaa" : "none",
-        outlineOffset: "2px",
-        cursor: isSelectMode ? "pointer" : "default",
-        position: "relative",
-      }
-    : {};
+    ? "outline outline-dashed outline-gray-300 outline-offset-2 cursor-pointer relative"
+    : "";
 
-  // Hover styles for edit mode
-  const hoverStyles: CSSProperties =
-    isHovered && editorMode !== "preview" && !isSelected
-      ? {
-          outline: "2px dashed #10b981",
-          outlineOffset: "2px",
-          position: "relative",
-        }
-      : {};
+  const hoverClasses = isHovered && editorMode !== "preview" && !isSelected
+    ? "outline outline-2 outline-dashed outline-emerald-500 outline-offset-2 relative"
+    : "";
 
   // Mouse event handlers
   const handleMouseEnter = () => {
@@ -72,10 +57,19 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   // Badge to show when element is selected
   const SelectedBadge = isSelected ? (
     <div
-      className="absolute -top-6 left-0 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md"
-      style={{ zIndex: 10 }}
+      className="absolute -top-6 left-0 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10"
     >
-      {component.label} - {instance.id}
+      <span><span className="font-medium">{component.label}</span> - {instance.id}</span>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          resetAllOverrides(instance.id);
+        }}
+        className="hover:bg-blue-600 rounded px-1"
+        title="Reset all overrides"
+      >
+        <ResetIcon />
+      </button>
     </div>
   ) : null;
 
@@ -83,8 +77,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   const HoverLabel =
     isHovered && editorMode !== "preview" && !isSelected ? (
       <div
-        className="absolute -top-6 left-0 bg-green-500 text-white text-xs py-1 px-2 rounded-t-md"
-        style={{ zIndex: 9 }}
+        className="absolute -top-6 left-0 bg-green-500 text-white text-xs py-1 px-2 rounded-t-md z-9"
       >
         {component.label}
       </div>
@@ -99,91 +92,114 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
     case "button":
       return (
         <div
-          className="relative"
-          style={{ display: "inline-block" }}
+          className="relative inline-block"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
           {SelectedBadge}
           {HoverLabel}
-          <button
+          <Button
             onClick={handleClick}
-            style={{
-              ...(mergedStyles as CSSProperties),
-              ...selectionStyles,
-              ...hoverStyles,
-            }}
+            className={cn(selectionClasses, hoverClasses)}
+            variant="ghost"
+            size="sm"
           >
-            {/* Always read component properties as the fallback if instance doesn't override */}
             {instance.properties.text !== undefined ? instance.properties.text : component.properties.text}
-          </button>
+          </Button>
         </div>
       );
 
-    case "text": {
-      const ElementTag = (
-        instance.properties.element !== undefined ? instance.properties.element : component.properties.element || "p"
-      ) as ElementType;
+    case "text":
+      const Element = (instance.properties.element || component.properties.element || "p") as ElementType;
+      const elementClasses: Record<string, string> = {
+        h1: "text-4xl font-bold mb-4 leading-tight",
+        h2: "text-3xl font-semibold mb-3 leading-snug",
+        h3: "text-2xl font-semibold mb-2 leading-snug",
+        h4: "text-xl font-semibold mb-2 leading-snug",
+        p: "text-base leading-relaxed mb-2",
+        span: "text-base leading-relaxed inline",
+        blockquote: "text-xl italic border-l-4 border-gray-200 pl-4 mb-2 leading-relaxed",
+        pre: "text-sm bg-gray-100 p-4 rounded-md mb-2 font-mono leading-relaxed whitespace-pre-wrap",
+        div: "text-base leading-relaxed mb-2",
+      };
+
       return (
-        <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div
+          className={cn(
+            "relative",
+            Element === "span" ? "inline" : "block"
+          )}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           {SelectedBadge}
           {HoverLabel}
-          <ElementTag
+          <Element
             onClick={handleClick}
-            style={{
-              ...(mergedStyles as CSSProperties),
-              ...selectionStyles,
-              ...hoverStyles,
-            }}
+            className={cn(
+              elementClasses[Element as keyof typeof elementClasses],
+              selectionClasses,
+              hoverClasses
+            )}
           >
-            {instance.properties.content !== undefined ? instance.properties.content : component.properties.content}
-          </ElementTag>
+            {instance.properties.content !== undefined
+              ? instance.properties.content
+              : component.properties.content}
+          </Element>
         </div>
       );
-    }
 
     case "card":
       return (
-        <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div
+          className="relative block"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           {SelectedBadge}
           {HoverLabel}
-          <div
+          <Card
             onClick={handleClick}
-            style={{
-              ...(mergedStyles as CSSProperties),
-              ...selectionStyles,
-              ...hoverStyles,
-            }}
+            className={cn(selectionClasses, hoverClasses)}
           >
-            {/* Check if instance has a title property, otherwise use component default */}
             {(instance.properties.title !== undefined ? instance.properties.title : component.properties.title) && (
-              <h3 className="text-lg font-medium mb-2">
-                {instance.properties.title !== undefined ? instance.properties.title : component.properties.title}
-              </h3>
+              <CardHeader>
+                <CardTitle>
+                  {instance.properties.title !== undefined ? instance.properties.title : component.properties.title}
+                </CardTitle>
+              </CardHeader>
             )}
-            {renderChildren()}
-          </div>
+            <CardContent>
+              {renderChildren()}
+            </CardContent>
+          </Card>
         </div>
       );
 
     case "container":
       return (
-        <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div
+          className="relative block"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           {SelectedBadge}
           {HoverLabel}
           <div
             onClick={handleClick}
-            style={{
-              ...(mergedStyles as CSSProperties),
-              ...selectionStyles,
-              ...hoverStyles,
-            }}
+            className={cn(
+              "flex flex-col gap-4 p-4 w-full bg-background rounded-lg border",
+              selectionClasses,
+              hoverClasses
+            )}
           >
-            {/* Check if instance has a title property, otherwise use component default */}
             {(instance.properties.title !== undefined ? instance.properties.title : component.properties.title) && (
-              <h2 className="text-xl font-medium mb-4">
-                {instance.properties.title !== undefined ? instance.properties.title : component.properties.title}
-              </h2>
+              <>
+                <h2 className="text-xl font-medium mb-4">
+                  {instance.properties.title !== undefined ? instance.properties.title : component.properties.title}
+                </h2>
+                <Separator className="my-4" />
+              </>
             )}
             {renderChildren()}
           </div>

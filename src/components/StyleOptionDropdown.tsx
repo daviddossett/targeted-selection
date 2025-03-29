@@ -26,20 +26,20 @@ export const StyleOptionDropdown: React.FC<StyleOptionDropdownProps> = ({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="block w-full rounded-md border-border bg-card shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2 border appearance-none pr-8 text-foreground"
+        className="block w-full rounded-md border-gray-200 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border appearance-none pr-8 text-gray-900"
       >
-        <option value="" disabled={value !== ""} className="bg-card text-foreground">
+        <option value="" disabled={value !== ""} className="bg-white text-gray-900">
           {placeholder}
         </option>
         {options.map((option) => (
-          <option key={option.value} value={option.value} className="bg-card text-foreground">
+          <option key={option.value} value={option.value} className="bg-white text-gray-900">
             {option.label}
           </option>
         ))}
       </select>
 
       {/* Dropdown arrow */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-foreground">
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
         <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
           <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
         </svg>
@@ -48,7 +48,7 @@ export const StyleOptionDropdown: React.FC<StyleOptionDropdownProps> = ({
       {/* Color preview box */}
       {showColorPreview && value && (
         <div className="absolute inset-y-0 left-2 flex items-center" style={{ pointerEvents: "none" }}>
-          <div className="w-4 h-4 rounded border border-border" style={{ backgroundColor: value }} />
+          <div className="w-4 h-4 rounded border border-gray-200" style={{ backgroundColor: value }} />
         </div>
       )}
     </div>
@@ -223,7 +223,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
             key={color.value}
             onClick={() => onChange(color.value)}
             className={`w-8 h-8 rounded-full border transition-all hover:scale-110 ${
-              value === color.value ? "ring-2 ring-offset-2 ring-accent" : "border-border"
+              value === color.value ? "ring-2 ring-offset-2 ring-blue-500" : "border-gray-200"
             }`}
             style={{ backgroundColor: color.value }}
             title={color.label}
@@ -236,8 +236,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
           onClick={() => setIsPopoverOpen(!isPopoverOpen)}
           className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all hover:scale-110 ${
             (!options.some((opt) => opt.value === value) && value) || isPopoverOpen
-              ? "ring-2 ring-offset-2 ring-accent bg-gradient-to-r from-pink-500 via-blue-500 to-green-500"
-              : "border-border bg-gradient-to-r from-pink-300 via-blue-300 to-green-300"
+              ? "ring-2 ring-offset-2 ring-blue-500 bg-gradient-to-r from-pink-500 via-blue-500 to-green-500"
+              : "border-gray-200 bg-gradient-to-r from-pink-300 via-blue-300 to-green-300"
           }`}
           title="More colors"
           type="button"
@@ -248,10 +248,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
 
       {/* Currently selected color indicator - always visible */}
       {value && (
-        <div className="flex items-center text-xs mt-1 mb-1 bg-muted/50 p-1 rounded">
-          <span className="text-muted-foreground">Selected: </span>
-          <div className="w-4 h-4 mx-1 rounded border border-border" style={{ backgroundColor: value }} />
-          <span className="font-mono text-foreground">{value}</span>
+        <div className="flex items-center text-xs mt-1 mb-1 bg-gray-50 p-1 rounded">
+          <span className="text-gray-500">Selected: </span>
+          <div className="w-4 h-4 mx-1 rounded border border-gray-200" style={{ backgroundColor: value }} />
+          <span className="font-mono text-gray-900">{value}</span>
         </div>
       )}
 
@@ -259,15 +259,15 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
       {isPopoverOpen && (
         <div
           ref={popoverRef}
-          className="absolute z-50 left-0 right-0 mt-1 bg-card rounded-md shadow-lg border border-border p-3"
+          className="absolute z-50 left-0 right-0 mt-1 bg-white rounded-md shadow-lg border border-gray-200 p-3"
           style={{ width: "280px" }}
         >
           {/* Tabs */}
-          <div className="flex border-b border-border mb-3">
+          <div className="flex border-b border-gray-200 mb-3">
             <button
               onClick={() => setActiveTab("tailwind")}
               className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "tailwind" ? "border-b-2 border-accent text-accent" : "text-muted-foreground"
+                activeTab === "tailwind" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"
               }`}
             >
               Tailwind Colors
@@ -275,7 +275,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
             <button
               onClick={() => setActiveTab("custom")}
               className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "custom" ? "border-b-2 border-accent text-accent" : "text-muted-foreground"
+                activeTab === "custom" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"
               }`}
             >
               Custom Color
@@ -293,8 +293,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
                     onClick={() => setSelectedColorFamily(group.name)}
                     className={`px-2 py-1 text-xs rounded-md ${
                       selectedColorFamily === group.name
-                        ? "bg-accent/20 text-accent"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        ? "bg-blue-50 text-blue-500"
+                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                     }`}
                   >
                     {group.name}
@@ -314,14 +314,14 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
                         setIsPopoverOpen(false);
                       }}
                       className={`w-full flex flex-col items-center ${
-                        value === color.value ? "ring-2 ring-offset-1 ring-accent" : ""
+                        value === color.value ? "ring-2 ring-offset-1 ring-blue-500" : ""
                       }`}
                     >
                       <div
-                        className="w-8 h-8 rounded mb-1 border border-border"
+                        className="w-8 h-8 rounded mb-1 border border-gray-200"
                         style={{ backgroundColor: color.value }}
                       />
-                      <span className="text-xs text-foreground">{color.label}</span>
+                      <span className="text-xs text-gray-900">{color.label}</span>
                     </button>
                   ))}
               </div>
@@ -334,7 +334,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
               <div className="flex space-x-3 mb-3">
                 {/* Color preview */}
                 <div
-                  className="w-12 h-12 rounded border border-border"
+                  className="w-12 h-12 rounded border border-gray-200"
                   style={{ backgroundColor: customColor || "#ffffff" }}
                 />
 
@@ -342,23 +342,23 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
                 <div className="flex-1 space-y-2">
                   {/* Hex input */}
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">Hex</label>
+                    <label className="block text-xs font-medium text-gray-900 mb-1">Hex</label>
                     <input
                       type="text"
                       value={customColor}
                       onChange={(e) => setCustomColor(e.target.value)}
-                      className="w-full rounded-md border-border bg-card shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-1 border text-foreground"
+                      className="w-full rounded-md border-gray-200 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-1 border text-gray-900"
                     />
                   </div>
 
                   {/* Color picker */}
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">Pick</label>
+                    <label className="block text-xs font-medium text-gray-900 mb-1">Pick</label>
                     <input
                       type="color"
                       value={customColor}
                       onChange={(e) => setCustomColor(e.target.value)}
-                      className="w-full h-8 p-0 border-border rounded"
+                      className="w-full h-8 p-0 border-gray-200 rounded"
                       style={{ padding: 0 }}
                     />
                   </div>
@@ -370,7 +370,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, optio
                   onChange(customColor);
                   setIsPopoverOpen(false);
                 }}
-                className="px-3 py-1 bg-accent text-accent-foreground rounded hover:bg-accent/90 w-full"
+                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 w-full"
                 type="button"
               >
                 Apply Custom Color

@@ -6,18 +6,23 @@ export interface ComponentStyle {
     borderRadius?: string;
     padding?: string;
     margin?: string;
+    marginBottom?: string;
     fontSize?: string;
     fontWeight?: string;
     width?: string;
+    maxWidth?: string;
     height?: string;
     display?: string;
     flexDirection?: string;
     justifyContent?: string;
     alignItems?: string;
+    alignSelf?: string;
     gap?: string;
     border?: string;
     boxShadow?: string;
     cursor?: string;
+    lineHeight?: string;
+    gridTemplateColumns?: string;
 }
 
 export interface ComponentProperties {

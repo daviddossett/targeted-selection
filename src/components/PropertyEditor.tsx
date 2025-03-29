@@ -212,14 +212,14 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
                   {hasOverride && (
                     <button
                       onClick={() => resetInstanceStyle(styleKey)}
-                      className="px-2 py-2 bg-muted text-muted-foreground rounded hover:bg-muted/80"
+                      className="px-2 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
                       title="Reset to component default"
                     >
                       <ResetIcon />
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">Default: {defaultValue as string}</p>
+                <p className="text-xs text-gray-500">Default: {defaultValue as string}</p>
               </div>
             );
           })}
@@ -234,7 +234,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
         <div className="space-y-4">
           {Object.entries(component.properties).map(([key, value]) => (
             <div key={key} className="space-y-1">
-              <label className="block text-sm font-medium text-foreground">
+              <label className="block text-sm font-medium text-gray-900">
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </label>
               {renderPropertyField(key, value as string, (newValue) =>
@@ -249,7 +249,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             const styleKey = key as keyof ComponentStyle;
             return (
               <div key={styleKey} className="space-y-1">
-                <label className="block text-sm font-medium text-foreground">
+                <label className="block text-sm font-medium text-gray-900">
                   {styleKey.charAt(0).toUpperCase() + styleKey.slice(1)}
                 </label>
                 {renderStyleField(styleKey, value as string, "", (newValue) =>

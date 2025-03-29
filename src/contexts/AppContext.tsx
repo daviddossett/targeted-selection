@@ -20,6 +20,7 @@ interface AppContextType {
   updateComponentStyle: (componentId: string, key: keyof ComponentStyle, value: string) => void;
   getSelectedInstance: () => ComponentInstance | null;
   getComponentById: (id: string) => ComponentDefinition | undefined;
+  resetAllOverrides: (instanceId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -215,6 +216,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return appDefinition.components.find((comp) => comp.id === id);
   };
 
+  const resetAllOverrides = (instanceId: string) => {
+    setAppDefinition((prev) => ({
+      ...prev,
+      instances: updateInstancesRecursively(prev.instances, instanceId, (instance) => ({
+        ...instance,
+        properties: {}, // Reset all property overrides
+        instanceStyles: {}, // Reset all style overrides
+      })),
+    }));
+  };
+
   const value = {
     appDefinition,
     selectedInstanceId,
@@ -231,6 +243,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     updateComponentStyle,
     getSelectedInstance,
     getComponentById,
+    resetAllOverrides,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
