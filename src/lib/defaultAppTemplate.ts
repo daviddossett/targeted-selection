@@ -83,9 +83,7 @@ export const defaultAppTemplate: AppDefinition = {
                 border: '1px solid #e5e7eb',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
             },
-            properties: {
-                title: '',
-            },
+            properties: {},
         },
         {
             id: 'grid',
@@ -117,9 +115,7 @@ export const defaultAppTemplate: AppDefinition = {
                     id: 'card-1',
                     componentId: 'card',
                     parentId: 'main-grid',
-                    properties: {
-                        title: '',
-                    },
+                    properties: {},
                     children: [
                         {
                             id: 'image-1',
@@ -184,9 +180,7 @@ export const defaultAppTemplate: AppDefinition = {
                     id: 'card-2',
                     componentId: 'card',
                     parentId: 'main-grid',
-                    properties: {
-                        title: '',
-                    },
+                    properties: {},
                     children: [
                         {
                             id: 'image-2',
@@ -251,9 +245,7 @@ export const defaultAppTemplate: AppDefinition = {
                     id: 'card-3',
                     componentId: 'card',
                     parentId: 'main-grid',
-                    properties: {
-                        title: '',
-                    },
+                    properties: {},
                     children: [
                         {
                             id: 'image-3',
@@ -318,9 +310,7 @@ export const defaultAppTemplate: AppDefinition = {
                     id: 'card-4',
                     componentId: 'card',
                     parentId: 'main-grid',
-                    properties: {
-                        title: '',
-                    },
+                    properties: {},
                     children: [
                         {
                             id: 'image-4',

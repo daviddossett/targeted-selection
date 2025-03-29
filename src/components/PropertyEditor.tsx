@@ -169,7 +169,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
 
     return (
       <div className="p-4">
-        <h3 className="text-lg font-medium mb-4">Instance Properties</h3>
+        <h3 className="text-xs font-semibold mb-4 text-gray-800">Instance properties</h3>
         <div className="space-y-4">
           {Object.entries(component.properties).map(([key, defaultValue]) => {
             const hasOverride =
@@ -201,7 +201,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             );
           })}
         </div>
-        <h3 className="text-lg font-medium my-4">Instance Styles</h3>
+        <h3 className="text-xs font-semibold mb-4 text-gray-800">Instance styles</h3>
         <div className="space-y-4">
           {sortedInstanceStyles.map(([key, defaultValue]) => {
             const styleKey = key as keyof ComponentStyle;
@@ -248,11 +248,11 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
 
     return (
       <div className="p-4">
-        <h3 className="text-lg font-medium mb-4">Component Properties</h3>
+        <h3 className="text-xs font-semibold mb-4 text-gray-800">Properties</h3>
         <div className="space-y-4">
           {Object.entries(component.properties).map(([key, value]) => (
             <div key={key} className="space-y-1">
-              <label className="block text-sm font-medium text-gray-900">
+              <label className="block text-sm font-regular text-gray-900">
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </label>
               {renderPropertyField(key, value as string, (newValue) =>
@@ -261,7 +261,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             </div>
           ))}
         </div>
-        <h3 className="text-lg font-medium my-4">Default Styles</h3>
+        <h3 className="text-xs font-semibold mb-4 text-gray-800">Styles</h3>
         <div className="space-y-4">
           {sortedDefaultStyles.map(([key, value]) => {
             const styleKey = key as keyof ComponentStyle;

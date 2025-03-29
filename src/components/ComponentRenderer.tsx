@@ -4,7 +4,7 @@ import React, { ElementType } from "react";
 import { ComponentInstance } from "@/lib/types";
 import { useAppContext } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ResetIcon } from "@/components/icons/ResetIcon";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
   // Badge to show when element is selected
   const SelectedBadge = isSelected ? (
-    <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10">
+    <div className="absolute -top-8 left-1 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10">
       <span>
         <span className="font-medium">{component.label}</span> - {instance.id}
       </span>
@@ -67,7 +67,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
           e.stopPropagation();
           resetAllOverrides(instance.id);
         }}
-        className="hover:bg-blue-600 rounded px-1"
+        className="hover:bg-blue-600 rounded p-1"
         title="Reset all overrides"
       >
         <ResetIcon />
@@ -95,6 +95,19 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
     // Apply instance style overrides if they exist
     if (instance.instanceStyles) {
+      // First check if we need to handle margin conflicts
+      const hasMarginShorthand = styles.margin !== undefined;
+      const hasMarginOverrides =
+        instance.instanceStyles.marginBottom !== undefined ||
+        instance.instanceStyles.marginTop !== undefined ||
+        instance.instanceStyles.marginRight !== undefined;
+
+      // If we have both margin shorthand and specific margin overrides, we need to remove the shorthand
+      if (hasMarginShorthand && hasMarginOverrides) {
+        delete styles.margin;
+      }
+
+      // Now apply all instance style overrides
       Object.entries(instance.instanceStyles).forEach(([key, value]) => {
         if (value) {
           styles[key as keyof typeof styles] = value;
@@ -177,13 +190,6 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
           {SelectedBadge}
           {HoverLabel}
           <Card onClick={handleClick} className={cn(selectionClasses, hoverClasses)} style={combinedStyles}>
-            {(instance.properties.title !== undefined ? instance.properties.title : component.properties.title) && (
-              <CardHeader>
-                <CardTitle>
-                  {instance.properties.title !== undefined ? instance.properties.title : component.properties.title}
-                </CardTitle>
-              </CardHeader>
-            )}
             <CardContent>{renderChildren()}</CardContent>
           </Card>
         </div>
@@ -199,11 +205,9 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
             className={cn("flex flex-col gap-4 w-full", selectionClasses, hoverClasses)}
             style={combinedStyles}
           >
-            {(instance.properties.title !== undefined ? instance.properties.title : component.properties.title) && (
+            {instance.properties.title && (
               <>
-                <h2 className="text-xl font-medium mb-4">
-                  {instance.properties.title !== undefined ? instance.properties.title : component.properties.title}
-                </h2>
+                <h2 className="text-xl font-medium mb-4">{instance.properties.title}</h2>
                 <Separator className="my-4" />
               </>
             )}

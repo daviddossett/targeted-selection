@@ -42,7 +42,7 @@ export const AppPreview: React.FC = () => {
   return (
     <div className="w-full h-full bg-background flex flex-col">
       {/* Toolbar */}
-      <div className="bg-white px-4 py-4 flex justify-center">
+      <div className="bg-white px-4 py-4 flex justify-end">
         <button
           onClick={toggleEditMode}
           className={`
@@ -56,7 +56,7 @@ export const AppPreview: React.FC = () => {
           `}
         >
           <span className="flex items-center gap-2">
-            {isEditMode ? "Edit Mode" : "Preview Mode"}
+            {isEditMode ? "Cancel" : "Select elements"}
             <span
               className={`
               text-xs px-2 py-0.5 rounded transition-colors duration-300

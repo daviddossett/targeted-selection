@@ -77,7 +77,7 @@ export const Sidebar: React.FC = () => {
                 <div className="flex">
                   <button
                     onClick={() => setEditorMode("component")}
-                    className={`px-2 py-0.5 rounded-l text-xs font-medium cursor-pointer ${
+                    className={`px-3 py-0.5 rounded-l text-xs font-medium cursor-pointer ${
                       editorMode === "component"
                         ? "bg-purple-600 text-white hover:bg-purple-700 border-b-0 border-r-0 border border-purple-800"
                         : "text-gray-600 hover:text-gray-900 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"
