@@ -28,9 +28,11 @@ export const StyleOptionDropdown: React.FC<StyleOptionDropdownProps> = ({
         onChange={(e) => onChange(e.target.value)}
         className="block w-full rounded-md border-gray-200 bg-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border appearance-none pr-8 text-gray-900"
       >
-        <option value="" disabled={value !== ""} className="bg-white text-gray-900">
-          {placeholder}
-        </option>
+        {value === "" && placeholder && (
+          <option value="" className="bg-white text-gray-900">
+            {placeholder}
+          </option>
+        )}
         {options.map((option) => (
           <option key={option.value} value={option.value} className="bg-white text-gray-900">
             {option.label}

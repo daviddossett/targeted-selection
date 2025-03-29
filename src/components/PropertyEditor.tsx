@@ -62,6 +62,18 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     currentValue: string | number | boolean,
     onChange: (value: string | number | boolean) => void
   ) => {
+    // Keep content fields as text inputs
+    if (key === "content" || key === "text") {
+      return (
+        <input
+          type="text"
+          value={String(currentValue)}
+          onChange={(e) => onChange(e.target.value)}
+          className="block w-full rounded-md border-border bg-card shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2 border"
+        />
+      );
+    }
+
     // Special handling for element property in text components
     if (key === "element" && component.type === "text") {
       return (
@@ -74,13 +86,54 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
       );
     }
 
-    // Default input field for other properties
+    // For variant or other properties that might benefit from a dropdown
+    if (key === "variant") {
+      const variantOptions = [
+        { value: "primary", label: "Primary" },
+        { value: "secondary", label: "Secondary" },
+        { value: "outline", label: "Outline" },
+        { value: "ghost", label: "Ghost" },
+      ];
+
+      return (
+        <StyleOptionDropdown
+          options={variantOptions}
+          value={String(currentValue)}
+          onChange={(value) => onChange(value)}
+          placeholder="Select variant"
+        />
+      );
+    }
+
+    // For boolean properties, use a toggle dropdown
+    if (typeof currentValue === "boolean") {
+      const booleanOptions = [
+        { value: "true", label: "Yes" },
+        { value: "false", label: "No" },
+      ];
+
+      return (
+        <StyleOptionDropdown
+          options={booleanOptions}
+          value={String(currentValue)}
+          onChange={(value) => onChange(value === "true")}
+          placeholder="Select option"
+        />
+      );
+    }
+
+    // For any other property, create a simple dropdown with a few common options
+    const commonOptions = [
+      { value: String(currentValue), label: String(currentValue) },
+      { value: "", label: "None" },
+    ];
+
     return (
-      <input
-        type="text"
+      <StyleOptionDropdown
+        options={commonOptions}
         value={String(currentValue)}
-        onChange={(e) => onChange(e.target.value)}
-        className="block w-full rounded-md border-border bg-card shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2 border"
+        onChange={(value) => onChange(value)}
+        placeholder={`Select ${key}`}
       />
     );
   };
@@ -92,67 +145,92 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     defaultValue: string,
     onChange: (value: string) => void
   ) => {
+    // Add "inherit" option for instance mode
+    const addInheritOption = (options: { value: string; label: string }[]) => {
+      if (mode === "instance") {
+        // Create a direct inherit option with empty value but shows what will be inherited
+        return [{ value: "", label: `Inherit (${defaultValue || "None"})` }, ...options];
+      }
+      return options;
+    };
+
     switch (key) {
       case "color":
       case "backgroundColor":
-        return <ColorPicker options={flatColorOptions} value={currentValue || ""} onChange={onChange} />;
+        return (
+          <ColorPicker options={addInheritOption(flatColorOptions)} value={currentValue || ""} onChange={onChange} />
+        );
+
       case "fontSize":
         return (
           <StyleOptionDropdown
-            options={fontSizeOptions}
+            options={addInheritOption(fontSizeOptions)}
             value={currentValue || ""}
             onChange={onChange}
-            placeholder={defaultValue || "Select font size"}
-          />
-        );
-      case "fontWeight":
-        return (
-          <StyleOptionDropdown
-            options={fontWeightOptions}
-            value={currentValue || ""}
-            onChange={onChange}
-            placeholder={defaultValue || "Select weight"}
-          />
-        );
-      case "borderRadius":
-        return (
-          <StyleOptionDropdown
-            options={borderRadiusOptions}
-            value={currentValue || ""}
-            onChange={onChange}
-            placeholder={defaultValue || "Select radius"}
-          />
-        );
-      case "boxShadow":
-        return (
-          <StyleOptionDropdown
-            options={boxShadowOptions}
-            value={currentValue || ""}
-            onChange={onChange}
-            placeholder={defaultValue || "Select shadow"}
-          />
-        );
-      case "padding":
-      case "margin":
-      case "gap":
-        return (
-          <StyleOptionDropdown
-            options={spacingOptions}
-            value={currentValue || ""}
-            onChange={onChange}
-            placeholder={defaultValue || `Select ${key}`}
+            placeholder=""
           />
         );
 
-      // Default to text input for other style properties
-      default:
+      case "fontWeight":
         return (
-          <input
-            type="text"
+          <StyleOptionDropdown
+            options={addInheritOption(fontWeightOptions)}
             value={currentValue || ""}
-            placeholder={defaultValue}
-            onChange={(e) => onChange(e.target.value)}
-            className="block w-full rounded-md border-border bg-card shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2 border"
+            onChange={onChange}
+            placeholder=""
+          />
+        );
+
+      case "borderRadius":
+        return (
+          <StyleOptionDropdown
+            options={addInheritOption(borderRadiusOptions)}
+            value={currentValue || ""}
+            onChange={onChange}
+            placeholder=""
+          />
+        );
+
+      case "boxShadow":
+        return (
+          <StyleOptionDropdown
+            options={addInheritOption(boxShadowOptions)}
+            value={currentValue || ""}
+            onChange={onChange}
+            placeholder=""
+          />
+        );
+
+      case "padding":
+      case "margin":
+      case "gap":
+      case "marginTop":
+      case "marginRight":
+      case "marginBottom":
+        return (
+          <StyleOptionDropdown
+            options={addInheritOption(spacingOptions)}
+            value={currentValue || ""}
+            onChange={onChange}
+            placeholder=""
+          />
+        );
+
+      // For any other style properties use a dropdown with common options
+      default:
+        const commonOptions = [
+          { value: currentValue || "", label: currentValue || "None" },
+          { value: "auto", label: "Auto" },
+          { value: "100%", label: "100%" },
+          { value: "initial", label: "Initial" },
+        ];
+
+        return (
+          <StyleOptionDropdown
+            options={mode === "instance" ? addInheritOption(commonOptions) : commonOptions}
+            value={currentValue || ""}
+            onChange={onChange}
+            placeholder=""
           />
         );
     }
@@ -168,71 +246,74 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     });
 
     return (
-      <div className="p-4">
-        <h3 className="text-xs font-semibold mb-4 text-gray-800">Instance properties</h3>
-        <div className="space-y-4">
-          {Object.entries(component.properties).map(([key, defaultValue]) => {
-            const hasOverride =
-              selectedInstance.properties[key as keyof typeof selectedInstance.properties] !== undefined;
-            const currentValue = hasOverride
-              ? selectedInstance.properties[key as keyof typeof selectedInstance.properties]
-              : defaultValue;
-            return (
-              <div key={key} className="space-y-1">
-                <label className="block text-sm font-medium text-foreground">
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </label>
-                <div className="flex items-center space-x-2">
-                  {renderPropertyField(key, currentValue, (value) =>
-                    updateInstanceProperty(selectedInstance.id, key, value)
-                  )}
-                  {hasOverride && (
-                    <button
-                      onClick={() => resetInstanceProperty(key)}
-                      className="px-2 py-2 bg-muted text-muted-foreground rounded hover:bg-muted/80"
-                      title="Reset to component default"
-                    >
-                      <ResetIcon />
-                    </button>
-                  )}
+      <div className="p-4 space-y-6">
+        <div className="bg-background">
+          <h3 className="text-xs font-semibold mb-4 text-gray-800">Instance properties</h3>
+          <div className="space-y-4">
+            {Object.entries(component.properties).map(([key, defaultValue]) => {
+              const hasOverride =
+                selectedInstance.properties[key as keyof typeof selectedInstance.properties] !== undefined;
+              const currentValue = hasOverride
+                ? selectedInstance.properties[key as keyof typeof selectedInstance.properties]
+                : defaultValue;
+              return (
+                <div key={key} className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-900">
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    {renderPropertyField(key, currentValue, (value) =>
+                      updateInstanceProperty(selectedInstance.id, key, value)
+                    )}
+                    {hasOverride && (
+                      <button
+                        onClick={() => resetInstanceProperty(key)}
+                        className="px-2 py-2 bg-muted text-muted-foreground rounded hover:bg-muted/80"
+                        title="Reset to component default"
+                      >
+                        <ResetIcon />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                {hasOverride && <p className="text-xs text-muted-foreground">Default: {String(defaultValue)}</p>}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-        <h3 className="text-xs font-semibold mb-4 text-gray-800">Instance styles</h3>
-        <div className="space-y-4">
-          {sortedInstanceStyles.map(([key, defaultValue]) => {
-            const styleKey = key as keyof ComponentStyle;
-            const instanceStyleValue = selectedInstance.instanceStyles?.[styleKey];
-            const hasOverride = instanceStyleValue !== undefined && instanceStyleValue !== "";
-            const currentValue = hasOverride ? instanceStyleValue : "";
 
-            return (
-              <div key={styleKey} className="space-y-1">
-                <label className="block text-sm font-medium text-foreground">
-                  {styleKey.charAt(0).toUpperCase() + styleKey.slice(1)}
-                </label>
-                <div className="flex items-center space-x-2">
-                  {renderStyleField(styleKey, currentValue, defaultValue as string, (value) =>
-                    updateInstanceStyle(selectedInstance.id, styleKey, value)
-                  )}
+        <div className="bg-background">
+          <h3 className="text-xs font-semibold mb-4 text-gray-800">Instance styles</h3>
+          <div className="space-y-4">
+            {sortedInstanceStyles.map(([key, defaultValue]) => {
+              const styleKey = key as keyof ComponentStyle;
+              const instanceStyleValue = selectedInstance.instanceStyles?.[styleKey];
+              const hasOverride = instanceStyleValue !== undefined && instanceStyleValue !== "";
+              const currentValue = hasOverride ? instanceStyleValue : "";
 
-                  {hasOverride && (
-                    <button
-                      onClick={() => resetInstanceStyle(styleKey)}
-                      className="px-2 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-                      title="Reset to component default"
-                    >
-                      <ResetIcon />
-                    </button>
-                  )}
+              return (
+                <div key={styleKey} className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-900">
+                    {styleKey.charAt(0).toUpperCase() + styleKey.slice(1)}
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    {renderStyleField(styleKey, currentValue, defaultValue as string, (value) =>
+                      updateInstanceStyle(selectedInstance.id, styleKey, value)
+                    )}
+
+                    {hasOverride && (
+                      <button
+                        onClick={() => resetInstanceStyle(styleKey)}
+                        className="px-2 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                        title="Reset to component default"
+                      >
+                        <ResetIcon />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <p className="text-xs text-gray-500">Default: {defaultValue as string}</p>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -247,35 +328,40 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     });
 
     return (
-      <div className="p-4">
-        <h3 className="text-xs font-semibold mb-4 text-gray-800">Properties</h3>
-        <div className="space-y-4">
-          {Object.entries(component.properties).map(([key, value]) => (
-            <div key={key} className="space-y-1">
-              <label className="block text-sm font-regular text-gray-900">
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </label>
-              {renderPropertyField(key, value as string, (newValue) =>
-                updateComponentProperty(component.id, key, newValue)
-              )}
-            </div>
-          ))}
-        </div>
-        <h3 className="text-xs font-semibold mb-4 text-gray-800">Styles</h3>
-        <div className="space-y-4">
-          {sortedDefaultStyles.map(([key, value]) => {
-            const styleKey = key as keyof ComponentStyle;
-            return (
-              <div key={styleKey} className="space-y-1">
-                <label className="block text-sm font-medium text-gray-900">
-                  {styleKey.charAt(0).toUpperCase() + styleKey.slice(1)}
+      <div className="p-4 space-y-6">
+        <div className="bg-background">
+          <h3 className="text-xs font-semibold mb-4 text-gray-800">Properties</h3>
+          <div className="space-y-4">
+            {Object.entries(component.properties).map(([key, value]) => (
+              <div key={key} className="space-y-1">
+                <label className="block text-sm font-regular text-gray-900">
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
                 </label>
-                {renderStyleField(styleKey, value as string, "", (newValue) =>
-                  updateComponentStyle(component.id, styleKey, newValue)
+                {renderPropertyField(key, value as string, (newValue) =>
+                  updateComponentProperty(component.id, key, newValue)
                 )}
               </div>
-            );
-          })}
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-background">
+          <h3 className="text-xs font-semibold mb-4 text-gray-800">Styles</h3>
+          <div className="space-y-4">
+            {sortedDefaultStyles.map(([key, value]) => {
+              const styleKey = key as keyof ComponentStyle;
+              return (
+                <div key={styleKey} className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-900">
+                    {styleKey.charAt(0).toUpperCase() + styleKey.slice(1)}
+                  </label>
+                  {renderStyleField(styleKey, value as string, "", (newValue) =>
+                    updateComponentStyle(component.id, styleKey, newValue)
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
