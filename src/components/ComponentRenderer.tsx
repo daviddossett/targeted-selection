@@ -95,7 +95,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
     // If no instance styles, just return the component styles
     if (!instance.instanceStyles || Object.keys(instance.instanceStyles).length === 0) {
-      return baseStyles;
+      return preprocessStyles(baseStyles);
     }
 
     // Create a new object for the final styles
@@ -110,46 +110,6 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
       }
     }
 
-    // Handle conflicts before applying instance overrides
-
-    // If instance has individual margin properties, don't use margin shorthand from component
-    if (
-      finalStyles.margin &&
-      (instance.instanceStyles.marginTop ||
-        instance.instanceStyles.marginRight ||
-        instance.instanceStyles.marginBottom ||
-        instance.instanceStyles.marginLeft)
-    ) {
-      delete finalStyles.margin;
-    }
-
-    // If instance has margin shorthand, remove any individual margin properties
-    if (instance.instanceStyles.margin) {
-      delete finalStyles.marginTop;
-      delete finalStyles.marginRight;
-      delete finalStyles.marginBottom;
-      delete finalStyles.marginLeft;
-    }
-
-    // If instance has individual padding properties, don't use padding shorthand from component
-    if (
-      finalStyles.padding &&
-      (instance.instanceStyles.paddingTop ||
-        instance.instanceStyles.paddingRight ||
-        instance.instanceStyles.paddingBottom ||
-        instance.instanceStyles.paddingLeft)
-    ) {
-      delete finalStyles.padding;
-    }
-
-    // If instance has padding shorthand, remove any individual padding properties
-    if (instance.instanceStyles.padding) {
-      delete finalStyles.paddingTop;
-      delete finalStyles.paddingRight;
-      delete finalStyles.paddingBottom;
-      delete finalStyles.paddingLeft;
-    }
-
     // Apply instance style overrides
     const instanceStyleEntries = Object.entries(instance.instanceStyles);
     for (const [key, value] of instanceStyleEntries) {
@@ -159,7 +119,43 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
       }
     }
 
-    return finalStyles;
+    // Apply preprocessing to handle any potential conflicts
+    return preprocessStyles(finalStyles);
+  };
+
+  // Preprocess styles to avoid conflicts between shorthand and individual properties
+  const preprocessStyles = (styles: ComponentStyle): ComponentStyle => {
+    const processedStyles: ComponentStyle = { ...styles };
+
+    // Handle margin conflicts
+    const hasMarginShorthand = Boolean(processedStyles.margin);
+    const hasIndividualMargins = Boolean(
+      processedStyles.marginTop ||
+        processedStyles.marginRight ||
+        processedStyles.marginBottom ||
+        processedStyles.marginLeft
+    );
+
+    // If both shorthand and individual margins exist, prefer individual ones
+    if (hasMarginShorthand && hasIndividualMargins) {
+      delete processedStyles.margin;
+    }
+
+    // Handle padding conflicts
+    const hasPaddingShorthand = Boolean(processedStyles.padding);
+    const hasIndividualPaddings = Boolean(
+      processedStyles.paddingTop ||
+        processedStyles.paddingRight ||
+        processedStyles.paddingBottom ||
+        processedStyles.paddingLeft
+    );
+
+    // If both shorthand and individual paddings exist, prefer individual ones
+    if (hasPaddingShorthand && hasIndividualPaddings) {
+      delete processedStyles.padding;
+    }
+
+    return processedStyles;
   };
 
   // Use the styles directly with type assertion for React compatibility

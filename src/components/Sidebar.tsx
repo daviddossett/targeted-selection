@@ -4,6 +4,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { PropertyEditor } from "./PropertyEditor";
 import { ResetIcon } from "@/components/icons/ResetIcon";
 import { PushUpIcon } from "@/components/icons/PushUpIcon";
+import { ConfirmPopover } from "./ConfirmPopover";
 
 export const Sidebar: React.FC = () => {
   const {
@@ -18,7 +19,7 @@ export const Sidebar: React.FC = () => {
 
   React.useEffect(() => {
     setIsMac(/Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent));
-  }, [setEditorMode]);
+  }, []);
 
   // Add keyboard shortcuts for component/instance toggle
   React.useEffect(() => {
@@ -36,7 +37,7 @@ export const Sidebar: React.FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [setEditorMode]);
 
   // Check if we're in edit mode (not preview)
   const isEditMode = editorMode !== "preview";
@@ -50,6 +51,12 @@ export const Sidebar: React.FC = () => {
     selectedInstance &&
     (Object.keys(selectedInstance.properties).length > 0 ||
       Object.keys(selectedInstance.instanceStyles || {}).length > 0);
+
+  const handlePushOverrides = () => {
+    if (selectedInstance) {
+      pushOverridesToComponent(selectedInstance.id);
+    }
+  };
 
   return (
     <div className="w-full h-full bg-card border-r border-gray-200 flex flex-col">
@@ -133,13 +140,22 @@ export const Sidebar: React.FC = () => {
               <ResetIcon />
               Reset all overrides
             </button>
-            <button
-              onClick={() => selectedInstance && pushOverridesToComponent(selectedInstance.id)}
-              className="bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer"
-              title="Push overrides up to component level"
-            >
-              <PushUpIcon />
-            </button>
+
+            <ConfirmPopover
+              trigger={
+                <button
+                  className="bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer"
+                  title="Push overrides up to component level"
+                >
+                  <PushUpIcon />
+                </button>
+              }
+              title="Push changes to component"
+              description="This will apply all the instance overrides to the component definition, affecting all instances of this component. Are you sure?"
+              confirmText="Yes, push changes"
+              cancelText="Cancel"
+              onConfirm={handlePushOverrides}
+            />
           </div>
         )}
         {editorMode === "instance" && <PropertyEditor mode="instance" />}

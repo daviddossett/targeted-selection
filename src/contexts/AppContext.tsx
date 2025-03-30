@@ -1,14 +1,17 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { AppDefinition, ComponentDefinition, ComponentInstance, ComponentStyle } from "@/lib/types";
 import { defaultAppTemplate } from "@/lib/defaultAppTemplate";
+
+const LOCAL_STORAGE_KEY = "targeted-selection-app-state";
 
 interface AppContextType {
   appDefinition: AppDefinition;
   selectedInstanceId: string | null;
   editorMode: "instance" | "component" | "preview";
   isSelectMode: boolean;
+  hasUnsavedChanges: boolean;
   setAppDefinition: (appDefinition: AppDefinition) => void;
   selectInstance: (id: string | null) => void;
   setEditorMode: (mode: "instance" | "component" | "preview") => void;
@@ -22,15 +25,95 @@ interface AppContextType {
   getComponentById: (id: string) => ComponentDefinition | undefined;
   resetAllOverrides: (instanceId: string) => void;
   pushOverridesToComponent: (instanceId: string) => void;
+  saveChanges: () => void;
+  discardChanges: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [appDefinition, setAppDefinition] = useState<AppDefinition>(defaultAppTemplate);
+  const [appDefinition, setAppDefinitionState] = useState<AppDefinition>(defaultAppTemplate);
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
   const [editorMode, setEditorMode] = useState<"instance" | "component" | "preview">("preview");
   const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [originalState, setOriginalState] = useState<AppDefinition | null>(null);
+
+  // Load state from localStorage on initial mount
+  useEffect(() => {
+    const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedState) {
+      try {
+        const parsedState = JSON.parse(savedState);
+        setAppDefinitionState(parsedState);
+      } catch (error) {
+        console.error("Failed to parse saved state:", error);
+        // Fallback to default template if parsing fails
+        setAppDefinitionState(defaultAppTemplate);
+      }
+    }
+  }, []);
+
+  // Save state to localStorage whenever appDefinition changes
+  const setAppDefinition = (newDefinition: AppDefinition | ((prev: AppDefinition) => AppDefinition)) => {
+    if (typeof newDefinition === "function") {
+      setAppDefinitionState((prevState) => {
+        const nextState = (newDefinition as (prev: AppDefinition) => AppDefinition)(prevState);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextState));
+        } catch (error) {
+          console.error("Failed to save state to localStorage:", error);
+        }
+        setHasUnsavedChanges(true);
+        return nextState;
+      });
+    } else {
+      setAppDefinitionState(newDefinition);
+      setHasUnsavedChanges(true);
+
+      // Store in localStorage
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newDefinition));
+      } catch (error) {
+        console.error("Failed to save state to localStorage:", error);
+      }
+    }
+  };
+
+  const saveChanges = () => {
+    setHasUnsavedChanges(false);
+    setEditorMode("preview");
+    setIsSelectMode(false);
+    selectInstance(null);
+
+    // Update original state to match current state
+    setOriginalState(null);
+  };
+
+  const discardChanges = () => {
+    if (originalState) {
+      setAppDefinitionState(originalState);
+      // Also update localStorage to match the reverted state
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(originalState));
+      } catch (error) {
+        console.error("Failed to save reverted state to localStorage:", error);
+      }
+    }
+
+    setHasUnsavedChanges(false);
+    setEditorMode("preview");
+    setIsSelectMode(false);
+    selectInstance(null);
+    setOriginalState(null);
+  };
+
+  // When entering edit mode, store the current state as original
+  useEffect(() => {
+    if (editorMode !== "preview" && !originalState) {
+      setOriginalState(JSON.parse(JSON.stringify(appDefinition)));
+    }
+  }, [editorMode, appDefinition, originalState]);
 
   const selectInstance = (id: string | null) => {
     setSelectedInstanceId(id);
@@ -78,7 +161,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateInstanceProperty = (instanceId: string, key: string, value: unknown) => {
-    setAppDefinition((prev) => ({
+    setAppDefinition((prev: AppDefinition) => ({
       ...prev,
       instances: updateInstancesRecursively(prev.instances, instanceId, (instance) => {
         // Create a new properties object
@@ -103,7 +186,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateInstanceStyle = (instanceId: string, key: keyof ComponentStyle, value: string) => {
-    setAppDefinition((prev) => ({
+    setAppDefinition((prev: AppDefinition) => ({
       ...prev,
       instances: updateInstancesRecursively(prev.instances, instanceId, (instance) => {
         // Create a new instanceStyles object or use empty object if it doesn't exist
@@ -126,9 +209,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateComponentProperty = (componentId: string, key: string, value: unknown) => {
-    setAppDefinition((prev) => {
+    setAppDefinition((prev: AppDefinition) => {
       // First find the component to update
-      const updatedComponents = prev.components.map((component) => {
+      const updatedComponents = prev.components.map((component: ComponentDefinition) => {
         if (component.id === componentId) {
           return {
             ...component,
@@ -154,9 +237,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateComponentStyle = (componentId: string, key: keyof ComponentStyle, value: string) => {
-    setAppDefinition((prev) => {
+    setAppDefinition((prev: AppDefinition) => {
       // First find the component to update
-      const updatedComponents = prev.components.map((component) => {
+      const updatedComponents = prev.components.map((component: ComponentDefinition) => {
         if (component.id === componentId) {
           return {
             ...component,
@@ -222,7 +305,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const resetAllOverrides = (instanceId: string) => {
-    setAppDefinition((prev) => ({
+    setAppDefinition((prev: AppDefinition) => ({
       ...prev,
       instances: updateInstancesRecursively(prev.instances, instanceId, (instance) => ({
         ...instance,
@@ -240,9 +323,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!component) return;
 
     // Start updating the app definition
-    setAppDefinition((prev) => {
+    setAppDefinition((prev: AppDefinition) => {
       // Update component properties with instance overrides
-      const updatedComponents = prev.components.map((comp) => {
+      const updatedComponents = prev.components.map((comp: ComponentDefinition) => {
         if (comp.id === instance.componentId) {
           return {
             ...comp,
@@ -281,6 +364,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     selectedInstanceId,
     editorMode,
     isSelectMode,
+    hasUnsavedChanges,
     setAppDefinition,
     selectInstance,
     setEditorMode,
@@ -294,6 +378,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     getComponentById,
     resetAllOverrides,
     pushOverridesToComponent,
+    saveChanges,
+    discardChanges,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
