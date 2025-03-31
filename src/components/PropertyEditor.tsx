@@ -134,7 +134,6 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             inheritedValue={componentDefault}
             inheritedLabel="Inherit from component"
             isInherited={isInherited}
-            onReset={() => resetInstanceStyle(key)}
           />
         );
       }
@@ -155,13 +154,6 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           inheritedValue={themeValue}
           inheritedLabel="Inherit from theme"
           isInherited={isInherited}
-          onReset={
-            isThemeProperty
-              ? () => {
-                  updateComponentStyle(component.id, key, "");
-                }
-              : undefined
-          }
           // Don't pass themeVariableName here to ensure we show theme colors and not the Tailwind palette
         />
       );
