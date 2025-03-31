@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 import { AppDefinition, ComponentDefinition, ComponentInstance, ComponentStyle, ThemeSettings } from "@/lib/types";
 import { defaultAppTemplate } from "@/lib/defaultAppTemplate";
 import { defaultTheme } from "@/lib/themeDefaults";
