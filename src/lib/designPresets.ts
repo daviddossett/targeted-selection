@@ -141,45 +141,48 @@ export const boxShadowOptions = [
     { value: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)', label: 'Inner - Inset' },
 ];
 
-// Flat color options (for dropdowns)
+// Selected colors from the Tailwind palette for component-level colors
 export const flatColorOptions = [
-    // Grayscale
-    { value: '#ffffff', label: 'White' },
-    { value: '#f9fafb', label: 'Gray 50' },
-    { value: '#f3f4f6', label: 'Gray 100' },
-    { value: '#e5e7eb', label: 'Gray 200' },
-    { value: '#d1d5db', label: 'Gray 300' },
-    { value: '#9ca3af', label: 'Gray 400' },
-    { value: '#6b7280', label: 'Gray 500' },
-    { value: '#4b5563', label: 'Gray 600' },
-    { value: '#374151', label: 'Gray 700' },
-    { value: '#1f2937', label: 'Gray 800' },
-    { value: '#111827', label: 'Gray 900' },
-    { value: '#000000', label: 'Black' },
+    // Primary options
+    { value: '#3b82f6', label: 'Blue 500', id: 'flat-blue-500', tailwindClass: 'bg-blue-500' },
+    { value: '#2563eb', label: 'Blue 600', id: 'flat-blue-600', tailwindClass: 'bg-blue-600' },
+    { value: '#1d4ed8', label: 'Blue 700', id: 'flat-blue-700', tailwindClass: 'bg-blue-700' },
+    { value: '#6366f1', label: 'Indigo 500', id: 'flat-indigo-500', tailwindClass: 'bg-indigo-500' },
+    { value: '#4f46e5', label: 'Indigo 600', id: 'flat-indigo-600', tailwindClass: 'bg-indigo-600' },
+    { value: '#8b5cf6', label: 'Violet 500', id: 'flat-violet-500', tailwindClass: 'bg-violet-500' },
 
-    // Colors
-    { value: '#ef4444', label: 'Red' },
-    { value: '#f97316', label: 'Orange' },
-    { value: '#eab308', label: 'Yellow' },
-    { value: '#22c55e', label: 'Green' },
-    { value: '#3b82f6', label: 'Blue' },
-    { value: '#6366f1', label: 'Indigo' },
-    { value: '#a855f7', label: 'Purple' },
-    { value: '#ec4899', label: 'Pink' },
+    // Secondary options
+    { value: '#10b981', label: 'Emerald 500', id: 'flat-emerald-500', tailwindClass: 'bg-emerald-500' },
+    { value: '#059669', label: 'Emerald 600', id: 'flat-emerald-600', tailwindClass: 'bg-emerald-600' },
+    { value: '#f59e0b', label: 'Amber 500', id: 'flat-amber-500', tailwindClass: 'bg-amber-500' },
+    { value: '#ef4444', label: 'Red 500', id: 'flat-red-500', tailwindClass: 'bg-red-500' },
+    { value: '#ec4899', label: 'Pink 500', id: 'flat-pink-500', tailwindClass: 'bg-pink-500' },
+
+    // Neutrals
+    { value: '#ffffff', label: 'White', id: 'flat-white', tailwindClass: 'bg-white' },
+    { value: '#f9fafb', label: 'Gray 50', id: 'flat-gray-50', tailwindClass: 'bg-gray-50' },
+    { value: '#f3f4f6', label: 'Gray 100', id: 'flat-gray-100', tailwindClass: 'bg-gray-100' },
+    { value: '#e5e7eb', label: 'Gray 200', id: 'flat-gray-200', tailwindClass: 'bg-gray-200' },
+    { value: '#6b7280', label: 'Gray 500', id: 'flat-gray-500', tailwindClass: 'bg-gray-500' },
+    { value: '#1f2937', label: 'Gray 800', id: 'flat-gray-800', tailwindClass: 'bg-gray-800' },
+    { value: '#111827', label: 'Gray 900', id: 'flat-gray-900', tailwindClass: 'bg-gray-900' },
+    { value: '#000000', label: 'Black', id: 'flat-black', tailwindClass: 'bg-black' },
 ];
 
-// Spacing options (for padding, margin, gap)
+// Spacing options for padding, margin, and gap
 export const spacingOptions = [
-    { value: '0', label: '0px' },
-    { value: '0.25rem', label: '1 - 4px' },
-    { value: '0.5rem', label: '2 - 8px' },
-    { value: '0.75rem', label: '3 - 12px' },
-    { value: '1rem', label: '4 - 16px' },
-    { value: '1.25rem', label: '5 - 20px' },
-    { value: '1.5rem', label: '6 - 24px' },
-    { value: '1.75rem', label: '7 - 28px' },
-    { value: '2rem', label: '8 - 32px' },
-    { value: '2.5rem', label: '10 - 40px' },
-    { value: '3rem', label: '12 - 48px' },
-    { value: '4rem', label: '16 - 64px' },
+    { value: '0', label: '0 - None' },
+    { value: '0.25rem', label: '1 - 0.25rem (4px)' },
+    { value: '0.5rem', label: '2 - 0.5rem (8px)' },
+    { value: '0.75rem', label: '3 - 0.75rem (12px)' },
+    { value: '1rem', label: '4 - 1rem (16px)' },
+    { value: '1.25rem', label: '5 - 1.25rem (20px)' },
+    { value: '1.5rem', label: '6 - 1.5rem (24px)' },
+    { value: '1.75rem', label: '7 - 1.75rem (28px)' },
+    { value: '2rem', label: '8 - 2rem (32px)' },
+    { value: '2.5rem', label: '10 - 2.5rem (40px)' },
+    { value: '3rem', label: '12 - 3rem (48px)' },
+    { value: '4rem', label: '16 - 4rem (64px)' },
+    { value: '5rem', label: '20 - 5rem (80px)' },
+    { value: 'auto', label: 'Auto' },
 ];

@@ -2,6 +2,7 @@
 import React from "react";
 import { useAppContext } from "@/contexts/AppContext";
 import { PropertyEditor } from "./PropertyEditor";
+import { ThemePanel } from "./ThemePanel";
 import { ResetIcon } from "@/components/icons/ResetIcon";
 import { PushUpIcon } from "@/components/icons/PushUpIcon";
 import { ConfirmPopover } from "./ConfirmPopover";
@@ -130,7 +131,7 @@ export const Sidebar: React.FC = () => {
         )}
       </div>
 
-      <div>
+      <div className="flex-1 overflow-auto">
         {hasOverrides && editorMode === "instance" && (
           <div className="px-4 w-full mb-4 flex gap-2">
             <button
@@ -158,12 +159,14 @@ export const Sidebar: React.FC = () => {
             />
           </div>
         )}
-        {editorMode === "instance" && <PropertyEditor mode="instance" />}
-        {editorMode === "component" && <PropertyEditor mode="component" />}
-        {!isEditMode && (
-          <div className="p-4 text-muted-foreground">
-            <p className="text-sm">Toggle edit mode in the preview to start editing.</p>
-          </div>
+
+        {isEditMode ? (
+          <>
+            {editorMode === "instance" && <PropertyEditor mode="instance" />}
+            {editorMode === "component" && <PropertyEditor mode="component" />}
+          </>
+        ) : (
+          <ThemePanel />
         )}
       </div>
     </div>

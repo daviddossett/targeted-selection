@@ -4,8 +4,16 @@ import { useAppContext } from "@/contexts/AppContext";
 import { ComponentRenderer } from "./ComponentRenderer";
 
 export const AppPreview: React.FC = () => {
-  const { appDefinition, editorMode, setEditorMode, setIsSelectMode, hasUnsavedChanges, saveChanges, discardChanges } =
-    useAppContext();
+  const {
+    appDefinition,
+    editorMode,
+    setEditorMode,
+    setIsSelectMode,
+    hasUnsavedChanges,
+    saveChanges,
+    discardChanges,
+    themeSettings,
+  } = useAppContext();
 
   const isEditMode = editorMode !== "preview";
 
@@ -37,6 +45,16 @@ export const AppPreview: React.FC = () => {
     setIsMac(/Macintosh|MacIntel|MacPPC|Mac68K/i.test(navigator.userAgent));
   }, []);
 
+  // Apply global theme settings to the preview area
+  const previewStyle: React.CSSProperties = {
+    backgroundColor: themeSettings.primaryBackground,
+    color: themeSettings.primaryText,
+    fontFamily: themeSettings.fontFamily,
+    padding: "2rem",
+    borderRadius: themeSettings.borderRadius,
+    transition: "all 0.2s ease-in-out",
+  };
+
   return (
     <div className="w-full h-full bg-background flex flex-col">
       {/* Toolbar */}
@@ -59,7 +77,12 @@ export const AppPreview: React.FC = () => {
             <>
               <button
                 onClick={saveChanges}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer bg-green-600 text-white hover:bg-green-700"
+                disabled={!hasUnsavedChanges}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out ${
+                  hasUnsavedChanges
+                    ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                    : "bg-green-200 text-white cursor-not-allowed"
+                }`}
               >
                 <span>Save Changes</span>
               </button>
@@ -67,7 +90,7 @@ export const AppPreview: React.FC = () => {
                 onClick={discardChanges}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
               >
-                <span>Discard Changes</span>
+                <span>Cancel</span>
               </button>
             </>
           )}
@@ -75,8 +98,8 @@ export const AppPreview: React.FC = () => {
       </div>
 
       {/* Preview Content - Directly render the card without extra wrappers */}
-      <div className="flex-1 overflow-auto flex items-center justify-center p-4">
-        <div className={`${isEditMode ? "relative" : ""}`}>
+      <div className="flex-1 overflow-auto flex items-center justify-center w-full h-full">
+        <div className={`${isEditMode ? "relative" : ""} overflow-auto w-full h-full`} style={previewStyle}>
           <ComponentRenderer instance={appDefinition.instances[0]} />
         </div>
       </div>

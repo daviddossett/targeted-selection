@@ -1,5 +1,18 @@
 export type ComponentType = 'button' | 'text' | 'card' | 'container';
 
+export interface ThemeSettings {
+    primaryAccent: string;
+    secondaryAccent: string;
+    primaryBackground: string;
+    secondaryBackground: string;
+    primaryText: string;
+    secondaryText: string;
+    fontFamily: string;
+    borderRadius: string;
+    cardShadow: string;
+    buttonShadow: string;
+}
+
 export interface ComponentStyle {
     backgroundColor?: string;
     color?: string;

@@ -14,8 +14,15 @@ interface ComponentRendererProps {
 }
 
 export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }) => {
-  const { getComponentById, selectInstance, selectedInstanceId, isSelectMode, editorMode, resetAllOverrides } =
-    useAppContext();
+  const {
+    getComponentById,
+    selectInstance,
+    selectedInstanceId,
+    isSelectMode,
+    editorMode,
+    resetAllOverrides,
+    themeSettings,
+  } = useAppContext();
   const component = getComponentById(instance.componentId);
   const [isHovered, setIsHovered] = React.useState(false);
 
@@ -158,24 +165,97 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
     return processedStyles;
   };
 
+  // Apply theme settings to components when appropriate
+  const applyThemeStyles = (componentStyles: React.CSSProperties): React.CSSProperties => {
+    const finalStyles = { ...componentStyles };
+
+    // Apply border radius from theme if not explicitly set on component
+    if (!finalStyles.borderRadius && themeSettings.borderRadius) {
+      finalStyles.borderRadius = themeSettings.borderRadius;
+    }
+
+    // Apply font family from theme if not explicitly set on component
+    if (!finalStyles.fontFamily && themeSettings.fontFamily) {
+      finalStyles.fontFamily = themeSettings.fontFamily;
+    }
+
+    // Apply background colors based on component type
+    if (!finalStyles.backgroundColor) {
+      if (component.type === "button") {
+        finalStyles.backgroundColor = themeSettings.primaryAccent;
+      } else if (component.type === "card") {
+        finalStyles.backgroundColor = themeSettings.primaryBackground;
+      } else if (component.type === "container") {
+        // Containers can use secondary background for visual distinction
+        finalStyles.backgroundColor = themeSettings.secondaryBackground;
+      }
+    }
+
+    // Apply text color inheritance from theme if not explicitly set
+    if (!finalStyles.color) {
+      if (component.type === "button") {
+        // Auto-detect if we need light or dark text based on background color
+        const bgColor = (finalStyles.backgroundColor as string) || themeSettings.primaryAccent;
+        finalStyles.color = isLightColor(bgColor) ? themeSettings.primaryText : "#ffffff";
+      } else if (component.type === "card" || component.type === "text") {
+        finalStyles.color = themeSettings.primaryText;
+      } else {
+        finalStyles.color = themeSettings.primaryText;
+      }
+    }
+
+    // Apply consistent text sizes from theme when appropriate
+    if (!finalStyles.fontSize) {
+      if (component.type === "text") {
+        // Text components retain their element-specific sizes
+        // We don't override these as they come from the elementClasses
+      } else if (component.type === "button") {
+        finalStyles.fontSize = "1rem"; // Standard button text size
+      }
+    }
+
+    // Apply box shadows from theme settings if applicable
+    if (!finalStyles.boxShadow) {
+      if (component.type === "card" && themeSettings.cardShadow) {
+        finalStyles.boxShadow = themeSettings.cardShadow;
+      } else if (component.type === "button" && themeSettings.buttonShadow) {
+        finalStyles.boxShadow = themeSettings.buttonShadow;
+      }
+    }
+
+    // Apply transitions for interactive elements
+    if (component.type === "button" && !finalStyles.transition) {
+      finalStyles.transition = "all 0.2s ease-in-out";
+    }
+
+    return finalStyles;
+  };
+
+  // Helper function to determine if a color is light or dark
+  const isLightColor = (color: string): boolean => {
+    // Default to false for non-hex colors or undefined
+    if (!color || !color.startsWith("#")) return false;
+
+    // Convert hex to RGB
+    const hex = color.replace("#", "");
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+
+    // Calculate relative luminance
+    // Formula: 0.299*R + 0.587*G + 0.114*B
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return true if light (luminance > 0.5)
+    return luminance > 0.5;
+  };
+
   // Use the styles directly with type assertion for React compatibility
-  const combinedStyles = getStyles() as React.CSSProperties;
+  const componentStyles = getStyles() as React.CSSProperties;
+  const combinedStyles = applyThemeStyles(componentStyles);
 
   switch (component.type) {
     case "button":
-      // Map our variant names to the actual variant names used by the Button component
-      const variantMapping: Record<string, "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"> = {
-        primary: "default",
-        secondary: "secondary",
-        outline: "outline",
-        destructive: "destructive",
-        ghost: "ghost",
-        link: "link",
-      };
-
-      const buttonVariant = instance.properties.variant || component.properties.variant || "primary";
-      const mappedVariant = variantMapping[buttonVariant] || "default";
-
       return (
         <div className="relative inline-block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {SelectedBadge}
@@ -184,7 +264,6 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
             onClick={handleClick}
             className={cn(selectionClasses, hoverClasses)}
             style={combinedStyles}
-            variant={mappedVariant}
             size="default"
           >
             {instance.properties.text !== undefined ? instance.properties.text : component.properties.text}
@@ -227,7 +306,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
           {SelectedBadge}
           {HoverLabel}
           <Card onClick={handleClick} className={cn(selectionClasses, hoverClasses)} style={combinedStyles}>
-            <CardContent>{renderChildren()}</CardContent>
+            <CardContent className="py-4">{renderChildren()}</CardContent>
           </Card>
         </div>
       );

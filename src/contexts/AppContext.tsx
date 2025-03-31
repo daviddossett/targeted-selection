@@ -1,10 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { AppDefinition, ComponentDefinition, ComponentInstance, ComponentStyle } from "@/lib/types";
+import { AppDefinition, ComponentDefinition, ComponentInstance, ComponentStyle, ThemeSettings } from "@/lib/types";
 import { defaultAppTemplate } from "@/lib/defaultAppTemplate";
+import { defaultTheme } from "@/lib/themeDefaults";
 
 const LOCAL_STORAGE_KEY = "targeted-selection-app-state";
+const LOCAL_STORAGE_THEME_KEY = "targeted-selection-theme";
 
 interface AppContextType {
   appDefinition: AppDefinition;
@@ -12,7 +14,8 @@ interface AppContextType {
   editorMode: "instance" | "component" | "preview";
   isSelectMode: boolean;
   hasUnsavedChanges: boolean;
-  setAppDefinition: (appDefinition: AppDefinition) => void;
+  themeSettings: ThemeSettings;
+  setAppDefinition: (appDefinition: AppDefinition | ((prev: AppDefinition) => AppDefinition)) => void;
   selectInstance: (id: string | null) => void;
   setEditorMode: (mode: "instance" | "component" | "preview") => void;
   setIsSelectMode: (mode: boolean) => void;
@@ -21,6 +24,7 @@ interface AppContextType {
   updateInstanceStyle: (instanceId: string, key: keyof ComponentStyle, value: string) => void;
   updateComponentProperty: (componentId: string, key: string, value: unknown) => void;
   updateComponentStyle: (componentId: string, key: keyof ComponentStyle, value: string) => void;
+  updateThemeSetting: (key: keyof ThemeSettings, value: string) => void;
   getSelectedInstance: () => ComponentInstance | null;
   getComponentById: (id: string) => ComponentDefinition | undefined;
   resetAllOverrides: (instanceId: string) => void;
@@ -38,6 +42,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [originalState, setOriginalState] = useState<AppDefinition | null>(null);
+  const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultTheme);
 
   // Load state from localStorage on initial mount
   useEffect(() => {
@@ -50,6 +55,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
         console.error("Failed to parse saved state:", error);
         // Fallback to default template if parsing fails
         setAppDefinitionState(defaultAppTemplate);
+      }
+    }
+
+    // Load theme settings
+    const savedTheme = localStorage.getItem(LOCAL_STORAGE_THEME_KEY);
+    if (savedTheme) {
+      try {
+        const parsedTheme = JSON.parse(savedTheme);
+        setThemeSettings(parsedTheme);
+      } catch (error) {
+        console.error("Failed to parse saved theme:", error);
+        // Fallback to default theme if parsing fails
+        setThemeSettings(defaultTheme);
       }
     }
   }, []);
@@ -295,6 +313,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const updateThemeSetting = (key: keyof ThemeSettings, value: string) => {
+    setThemeSettings((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+    // Store in localStorage
+    try {
+      localStorage.setItem(LOCAL_STORAGE_THEME_KEY, JSON.stringify({ ...themeSettings, [key]: value }));
+    } catch (error) {
+      console.error("Failed to save theme settings to localStorage:", error);
+    }
+  };
+
   const getSelectedInstance = (): ComponentInstance | null => {
     if (!selectedInstanceId) return null;
     return findInstance(appDefinition.instances, selectedInstanceId);
@@ -365,6 +396,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     editorMode,
     isSelectMode,
     hasUnsavedChanges,
+    themeSettings,
     setAppDefinition,
     selectInstance,
     setEditorMode,
@@ -374,6 +406,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     updateInstanceStyle,
     updateComponentProperty,
     updateComponentStyle,
+    updateThemeSetting,
     getSelectedInstance,
     getComponentById,
     resetAllOverrides,

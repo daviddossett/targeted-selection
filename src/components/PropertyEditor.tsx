@@ -24,6 +24,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     updateComponentProperty,
     updateInstanceStyle,
     updateComponentStyle,
+    themeSettings,
   } = useAppContext();
 
   const selectedInstance = getSelectedInstance();
@@ -73,25 +74,6 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
       );
     }
 
-    // For variant or other properties that might benefit from a dropdown
-    if (key === "variant") {
-      const variantOptions = [
-        { value: "primary", label: "Primary" },
-        { value: "secondary", label: "Secondary" },
-        { value: "outline", label: "Outline" },
-        { value: "ghost", label: "Ghost" },
-      ];
-
-      return (
-        <StyleOptionDropdown
-          options={variantOptions}
-          value={String(currentValue)}
-          onChange={(value) => onChange(value)}
-          placeholder="Select variant"
-        />
-      );
-    }
-
     // For boolean properties, use a toggle dropdown
     if (typeof currentValue === "boolean") {
       const booleanOptions = [
@@ -105,6 +87,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           value={String(currentValue)}
           onChange={(value) => onChange(value === "true")}
           placeholder="Select option"
+          type="select"
         />
       );
     }
@@ -121,6 +104,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
         value={String(currentValue)}
         onChange={(value) => onChange(value)}
         placeholder={`Select ${key}`}
+        type="select"
       />
     );
   };
@@ -132,6 +116,61 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     defaultValue: string,
     onChange: (value: string) => void
   ) => {
+    // For color properties, use our enhanced ColorPicker with inheritance
+    if (key === "color" || key === "backgroundColor" || key.includes("Color")) {
+      // Get the theme variable name that this color might be associated with
+      const themeVariableName = getThemeVariableForStyleProperty(key);
+
+      if (mode === "instance") {
+        const componentDefault = component.defaultStyles[key] as string;
+
+        // Check if this value is inherited (undefined or empty string)
+        const isInherited = !currentValue || currentValue === "";
+
+        return (
+          <ColorPicker
+            options={flatColorOptions}
+            value={currentValue}
+            onChange={onChange}
+            allowInherit={true}
+            inheritedValue={componentDefault}
+            inheritedLabel="Inherit from component"
+            isInherited={isInherited}
+            onReset={() => resetInstanceStyle(key)}
+            themeVariableName={themeVariableName}
+          />
+        );
+      }
+
+      // For component level, allow inheritance from global theme if appropriate
+      const isThemeProperty = Boolean(themeVariableName);
+      const themeValue =
+        isThemeProperty && themeVariableName
+          ? (themeSettings[themeVariableName as keyof typeof themeSettings] as string)
+          : "";
+      const isInherited = isThemeProperty && (!currentValue || currentValue === "");
+
+      return (
+        <ColorPicker
+          options={flatColorOptions}
+          value={currentValue || ""}
+          onChange={onChange}
+          allowInherit={isThemeProperty}
+          inheritedValue={themeValue}
+          inheritedLabel="Inherit from theme"
+          isInherited={isInherited}
+          onReset={
+            isThemeProperty
+              ? () => {
+                  updateComponentStyle(component.id, key, "");
+                }
+              : undefined
+          }
+          themeVariableName={themeVariableName}
+        />
+      );
+    }
+
     // Add "inherit" option for instance mode
     const addInheritOption = (options: { value: string; label: string }[]) => {
       if (mode === "instance") {
@@ -153,16 +192,6 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     };
 
     switch (key) {
-      case "color":
-      case "backgroundColor":
-        return (
-          <ColorPicker
-            options={addInheritOption(flatColorOptions)}
-            value={currentValue || ""}
-            onChange={handleStyleChange}
-          />
-        );
-
       case "fontSize":
         return (
           <StyleOptionDropdown
@@ -170,6 +199,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             value={currentValue || ""}
             onChange={handleStyleChange}
             placeholder=""
+            type="select"
           />
         );
 
@@ -180,6 +210,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             value={currentValue || ""}
             onChange={handleStyleChange}
             placeholder=""
+            type="select"
           />
         );
 
@@ -190,6 +221,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             value={currentValue || ""}
             onChange={handleStyleChange}
             placeholder=""
+            type="select"
           />
         );
 
@@ -200,6 +232,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             value={currentValue || ""}
             onChange={handleStyleChange}
             placeholder=""
+            type="select"
           />
         );
 
@@ -215,6 +248,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             value={currentValue || ""}
             onChange={handleStyleChange}
             placeholder=""
+            type="select"
           />
         );
 
@@ -254,6 +288,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             value={currentValue || ""}
             onChange={mode === "instance" ? handleStyleChange : onChange}
             placeholder=""
+            type="select"
           />
         );
     }
@@ -413,3 +448,18 @@ const ResetIcon = () => (
     <path d="M3 3v5h5"></path>
   </svg>
 );
+
+// Helper function to map style property to theme variable
+const getThemeVariableForStyleProperty = (key: string): string => {
+  // Map style properties to theme variables
+  const styleToThemeMap: Record<string, string> = {
+    backgroundColor: "background",
+    color: "text",
+    borderColor: "border",
+    accentColor: "accent",
+    primaryColor: "primary",
+    secondaryColor: "secondary",
+  };
+
+  return styleToThemeMap[key] || "";
+};
