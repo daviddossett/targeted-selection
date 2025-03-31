@@ -71,7 +71,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   };
 
   // Badge to show when element is selected
-  const SelectedBadge = isSelected ? (
+  const SelectedBadge = isSelected && editorMode !== "preview" ? (
     <div className="absolute -top-8 left-1 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10">
       <span>
         <span className="font-medium">{component.label}</span> - {instance.id}
@@ -91,7 +91,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
   // Hover label to show element type when hovering
   const HoverLabel =
-    isHovered && editorMode !== "preview" && !isSelected ? (
+    isHovered && editorMode !== "preview" && isSelectMode && !isSelected ? (
       <div className="absolute -top-6 left-0 bg-green-500 text-white text-xs py-1 px-2 rounded-t-md z-9">
         {component.label}
       </div>
@@ -196,7 +196,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
     if (!hasExplicitBgColor) {
       if (component.type === "button") {
-        finalStyles.backgroundColor = themeSettings.primaryAccent;
+        finalStyles.backgroundColor = "bg-white"; // Use white for buttons instead of primary accent
       } else if (component.type === "card") {
         // Card now uses secondary background
         finalStyles.backgroundColor = themeSettings.secondaryBackground;

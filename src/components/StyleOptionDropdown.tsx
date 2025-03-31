@@ -331,12 +331,13 @@ export function ColorPicker({
         );
       }
 
-      // For component-level settings, show the theme default color
-      const defaultColor = isTextColor ? themeSettings.primaryText : themeSettings.primaryBackground;
+      // For component-level settings, show the inherited value instead of "Theme Default"
+      const inheritedColorValue =
+        inheritedValue || (isTextColor ? themeSettings.primaryText : themeSettings.primaryBackground);
       return (
         <div className="flex items-center space-x-2">
-          <div className={`w-7 h-7 rounded-full ${defaultColor}`} />
-          <span className="text-sm text-gray-500">Theme Default ({defaultColor})</span>
+          <div className={`w-7 h-7 rounded-full ${inheritedColorValue}`} />
+          <span className="text-sm text-gray-500">Inherited ({inheritedColorValue})</span>
         </div>
       );
     }
@@ -375,7 +376,7 @@ export function ColorPicker({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex items-center space-x-2 p-2 border border-gray-200 rounded-md cursor-pointer bg-white">
+        <div className="flex items-center space-x-2 p-2 border border-gray-200 rounded-md cursor-pointer bg-white w-full">
           {getDisplayValue()}
         </div>
       </PopoverTrigger>

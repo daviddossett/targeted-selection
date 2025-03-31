@@ -4,7 +4,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { ComponentRenderer } from "./ComponentRenderer";
 
 export const AppPreview: React.FC = () => {
-  const { appDefinition, editorMode, setEditorMode, setIsSelectMode, themeSettings } = useAppContext();
+  const { appDefinition, editorMode, setEditorMode, setIsSelectMode, themeSettings, selectInstance } = useAppContext();
 
   const isEditMode = editorMode !== "preview";
 
@@ -12,11 +12,12 @@ export const AppPreview: React.FC = () => {
     if (!isEditMode) {
       setEditorMode("component"); // Default to component editing mode when toggling edit mode on
       setIsSelectMode(true); // Automatically enter selection mode when edit mode is enabled
+      selectInstance(null); // Clear any previously selected instance
     } else {
       setEditorMode("preview"); // Exit edit mode
       setIsSelectMode(false); // Exit selection mode
     }
-  }, [isEditMode, setEditorMode, setIsSelectMode]);
+  }, [isEditMode, setEditorMode, setIsSelectMode, selectInstance]);
 
   // Add keyboard shortcut for edit mode
   useEffect(() => {

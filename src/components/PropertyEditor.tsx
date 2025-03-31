@@ -128,7 +128,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
   const isUsingThemeColor = (key: string, value: string): boolean => {
     const themeVariableName = getThemeVariableForStyleProperty(key);
     if (!themeVariableName) return false;
-    
+
     // Check if the value matches any of the theme colors
     const themeColors = [
       themeSettings.primaryAccent,
@@ -138,7 +138,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
       themeSettings.primaryText,
       themeSettings.secondaryText,
     ];
-    
+
     return themeColors.includes(value);
   };
 
@@ -146,7 +146,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
   const getThemeVariableForValue = (key: string, value: string): string | null => {
     const themeVariableName = getThemeVariableForStyleProperty(key);
     if (!themeVariableName) return null;
-    
+
     // Check which theme color matches
     if (value === themeSettings.primaryAccent) return "primaryAccent";
     if (value === themeSettings.secondaryAccent) return "secondaryAccent";
@@ -154,7 +154,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     if (value === themeSettings.secondaryBackground) return "secondaryBackground";
     if (value === themeSettings.primaryText) return "primaryText";
     if (value === themeSettings.secondaryText) return "secondaryText";
-    
+
     return null;
   };
 
@@ -172,6 +172,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           value={currentValue || ""}
           onChange={onChange}
           allowInherit={false}
+          inheritedValue={defaultValue} // Pass the inherited value from the parent component
           themeVariableName={null}
           showOnlyThemeColors={false}
         />
@@ -322,7 +323,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
               {Object.entries(component.properties).map(([key, defaultValue]) => {
                 // Skip rendering the variant property
                 if (key === "variant") return null;
-                
+
                 const hasOverride =
                   selectedInstance.properties[key as keyof typeof selectedInstance.properties] !== undefined;
                 const currentValue = hasOverride
@@ -406,20 +407,20 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           <h3 className="text-xs font-semibold mb-4 text-gray-600">Properties</h3>
           <div className="space-y-4">
             {Object.entries(component.properties).map(([key, value]) => {
-                // Skip rendering the variant property
-                if (key === "variant") return null;
-                
-                return (
-                  <div key={key} className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-900">
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </label>
-                    {renderPropertyField(key, value as string, (newValue) =>
-                      updateComponentProperty(component.id, key, newValue)
-                    )}
-                  </div>
-                );
-              })}
+              // Skip rendering the variant property
+              if (key === "variant") return null;
+
+              return (
+                <div key={key} className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-900">
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </label>
+                  {renderPropertyField(key, value as string, (newValue) =>
+                    updateComponentProperty(component.id, key, newValue)
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
