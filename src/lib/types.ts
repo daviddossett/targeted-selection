@@ -50,7 +50,6 @@ export interface ComponentProperties {
     onClick?: string;
     content?: string;
     title?: string;
-    variant?: string;
 }
 
 export interface ComponentDefinition {

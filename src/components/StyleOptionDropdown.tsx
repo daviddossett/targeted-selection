@@ -33,7 +33,8 @@ interface ColorPickerProps {
   inheritedValue?: string;
   inheritedLabel?: string;
   isInherited?: boolean;
-  themeVariableName?: string;
+  themeVariableName?: string | null;
+  showOnlyThemeColors?: boolean;
 }
 
 interface ColorOption {
@@ -163,6 +164,7 @@ export function ColorPicker({
   allowInherit = false,
   inheritedValue,
   themeVariableName,
+  showOnlyThemeColors = false,
 }: ColorPickerProps) {
   const { themeSettings } = useAppContext();
   const [isCustomMode, setIsCustomMode] = useState(false);
@@ -206,7 +208,10 @@ export function ColorPicker({
   // Determine which color options to display based on context:
   let displayOptions: ColorOption[];
 
-  if (themeVariableName) {
+  if (showOnlyThemeColors) {
+    // For simplified mode, only show theme colors
+    displayOptions = themeColorOptions;
+  } else if (themeVariableName) {
     // App level theme settings - show appropriate color palette based on property type
     if (themeVariableName === "primaryText" || themeVariableName === "secondaryText") {
       // For text colors, show text color options
@@ -393,13 +398,15 @@ export function ColorPicker({
                 </div>
               ))}
 
-              <button
-                className={`w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center`}
-                onClick={() => setIsCustomMode(true)}
-                title="More colors"
-              >
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-red-500 via-green-500 to-blue-500" />
-              </button>
+              {!showOnlyThemeColors && (
+                <button
+                  className={`w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center`}
+                  onClick={() => setIsCustomMode(true)}
+                  title="More colors"
+                >
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-red-500 via-green-500 to-blue-500" />
+                </button>
+              )}
             </div>
           </div>
         ) : (

@@ -364,7 +364,6 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
             onClick={handleClick}
             className={cn(getTailwindClasses(), selectionClasses, hoverClasses)}
             style={getInlineStyles()}
-            size="default"
           >
             {instance.properties.text !== undefined ? instance.properties.text : component.properties.text}
           </Button>

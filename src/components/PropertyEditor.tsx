@@ -108,6 +108,56 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     );
   };
 
+  // Helper function to map style property to theme variable
+  const getThemeVariableForStyleProperty = (key: string): string => {
+    // Map style properties to theme variables
+    const styleToThemeMap: Record<string, string> = {
+      backgroundColor: "primaryBackground",
+      color: "primaryText",
+      borderColor: "primaryAccent",
+      accentColor: "primaryAccent",
+      primaryColor: "primaryAccent",
+      secondaryColor: "secondaryAccent",
+      // Add additional mappings as needed
+    };
+
+    return styleToThemeMap[key] || "";
+  };
+
+  // Helper function to check if a style is using a theme color
+  const isUsingThemeColor = (key: string, value: string): boolean => {
+    const themeVariableName = getThemeVariableForStyleProperty(key);
+    if (!themeVariableName) return false;
+    
+    // Check if the value matches any of the theme colors
+    const themeColors = [
+      themeSettings.primaryAccent,
+      themeSettings.secondaryAccent,
+      themeSettings.primaryBackground,
+      themeSettings.secondaryBackground,
+      themeSettings.primaryText,
+      themeSettings.secondaryText,
+    ];
+    
+    return themeColors.includes(value);
+  };
+
+  // Helper function to get the theme variable name for a style value
+  const getThemeVariableForValue = (key: string, value: string): string | null => {
+    const themeVariableName = getThemeVariableForStyleProperty(key);
+    if (!themeVariableName) return null;
+    
+    // Check which theme color matches
+    if (value === themeSettings.primaryAccent) return "primaryAccent";
+    if (value === themeSettings.secondaryAccent) return "secondaryAccent";
+    if (value === themeSettings.primaryBackground) return "primaryBackground";
+    if (value === themeSettings.secondaryBackground) return "secondaryBackground";
+    if (value === themeSettings.primaryText) return "primaryText";
+    if (value === themeSettings.secondaryText) return "secondaryText";
+    
+    return null;
+  };
+
   // Determine if a style property should use a specialized dropdown
   const renderStyleField = (
     key: keyof ComponentStyle,
@@ -115,46 +165,15 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     defaultValue: string,
     onChange: (value: string) => void
   ) => {
-    // For color properties, use our enhanced ColorPicker with inheritance
+    // For all color properties, show theme colors and custom option
     if (key === "color" || key === "backgroundColor" || key.includes("Color")) {
-      // Get the theme variable name that this color might be associated with
-      const themeVariableName = getThemeVariableForStyleProperty(key);
-
-      if (mode === "instance") {
-        const componentDefault = component.defaultStyles[key] as string;
-
-        // Check if this value is inherited (undefined or empty string)
-        const isInherited = !currentValue || currentValue === "";
-
-        return (
-          <ColorPicker
-            value={currentValue}
-            onChange={onChange}
-            allowInherit={true}
-            inheritedValue={componentDefault}
-            inheritedLabel="Inherit from component"
-            isInherited={isInherited}
-          />
-        );
-      }
-
-      // For component level, allow inheritance from global theme if appropriate
-      const isThemeProperty = Boolean(themeVariableName);
-      const themeValue =
-        isThemeProperty && themeVariableName
-          ? (themeSettings[themeVariableName as keyof typeof themeSettings] as string)
-          : "";
-      const isInherited = isThemeProperty && (!currentValue || currentValue === "");
-
       return (
         <ColorPicker
           value={currentValue || ""}
           onChange={onChange}
-          allowInherit={isThemeProperty}
-          inheritedValue={themeValue}
-          inheritedLabel="Inherit from theme"
-          isInherited={isInherited}
-          // Don't pass themeVariableName here to ensure we show theme colors and not the Tailwind palette
+          allowInherit={false}
+          themeVariableName={null}
+          showOnlyThemeColors={false}
         />
       );
     }
@@ -301,6 +320,9 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             <h3 className="text-xs font-semibold mb-4 text-gray-600">Instance properties</h3>
             <div className="space-y-4">
               {Object.entries(component.properties).map(([key, defaultValue]) => {
+                // Skip rendering the variant property
+                if (key === "variant") return null;
+                
                 const hasOverride =
                   selectedInstance.properties[key as keyof typeof selectedInstance.properties] !== undefined;
                 const currentValue = hasOverride
@@ -383,16 +405,21 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
         <div className="bg-background">
           <h3 className="text-xs font-semibold mb-4 text-gray-600">Properties</h3>
           <div className="space-y-4">
-            {Object.entries(component.properties).map(([key, value]) => (
-              <div key={key} className="space-y-1">
-                <label className="block text-sm font-medium text-gray-900">
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </label>
-                {renderPropertyField(key, value as string, (newValue) =>
-                  updateComponentProperty(component.id, key, newValue)
-                )}
-              </div>
-            ))}
+            {Object.entries(component.properties).map(([key, value]) => {
+                // Skip rendering the variant property
+                if (key === "variant") return null;
+                
+                return (
+                  <div key={key} className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-900">
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </label>
+                    {renderPropertyField(key, value as string, (newValue) =>
+                      updateComponentProperty(component.id, key, newValue)
+                    )}
+                  </div>
+                );
+              })}
           </div>
         </div>
 
@@ -436,19 +463,3 @@ const ResetIcon = () => (
     <path d="M3 3v5h5"></path>
   </svg>
 );
-
-// Helper function to map style property to theme variable
-const getThemeVariableForStyleProperty = (key: string): string => {
-  // Map style properties to theme variables
-  const styleToThemeMap: Record<string, string> = {
-    backgroundColor: "primaryBackground",
-    color: "primaryText",
-    borderColor: "primaryAccent",
-    accentColor: "primaryAccent",
-    primaryColor: "primaryAccent",
-    secondaryColor: "secondaryAccent",
-    // Add additional mappings as needed
-  };
-
-  return styleToThemeMap[key] || "";
-};

@@ -15,11 +15,12 @@ export const defaultAppTemplate: AppDefinition = {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                backgroundColor: 'bg-blue-500',
+                color: 'text-white',
             },
             properties: {
                 text: 'Button',
                 onClick: 'alert("Button clicked")',
-                variant: 'primary',
             },
         },
         {
@@ -27,10 +28,10 @@ export const defaultAppTemplate: AppDefinition = {
             type: 'text',
             label: 'Text',
             defaultStyles: {
-                color: 'hsl(var(--foreground))',
                 fontSize: '1rem',
                 margin: '0',
                 lineHeight: '1.5',
+                color: 'text-gray-900',
             },
             properties: {
                 content: 'Text content',
@@ -41,11 +42,11 @@ export const defaultAppTemplate: AppDefinition = {
             type: 'text',
             label: 'Heading',
             defaultStyles: {
-                color: 'hsl(var(--foreground))',
                 fontSize: '1.5rem',
                 fontWeight: '600',
                 margin: '0 0 0.75rem 0',
                 lineHeight: '1.2',
+                color: 'text-gray-900',
             },
             properties: {
                 content: 'Card Heading',
@@ -63,6 +64,7 @@ export const defaultAppTemplate: AppDefinition = {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                backgroundColor: 'bg-gray-100',
             },
             properties: {},
         },
@@ -76,6 +78,8 @@ export const defaultAppTemplate: AppDefinition = {
                 width: '100%',
                 border: '1px solid #e5e7eb',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+                backgroundColor: 'bg-white',
+                color: 'text-gray-900',
             },
             properties: {},
         },
@@ -145,7 +149,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 text: 'Learn More',
                                 onClick: 'alert("Learn more clicked!")',
-                                variant: 'primary',
                             },
                             instanceStyles: {
                                 marginRight: '0.5rem',
@@ -158,7 +161,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 text: 'Dismiss',
                                 onClick: 'alert("Dismissed!")',
-                                variant: 'secondary',
                             },
                         },
                     ],
@@ -205,7 +207,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 text: 'Get Started',
                                 onClick: 'alert("Getting started!")',
-                                variant: 'primary',
                             },
                             instanceStyles: {
                                 marginRight: '0.5rem',
@@ -218,7 +219,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 text: 'Learn More',
                                 onClick: 'alert("Learn more clicked!")',
-                                variant: 'secondary',
                             },
                         },
                     ],
@@ -265,7 +265,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 text: 'View Demo',
                                 onClick: 'alert("Demo viewed!")',
-                                variant: 'primary',
                             },
                             instanceStyles: {
                                 marginRight: '0.5rem',
@@ -278,7 +277,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 text: 'Documentation',
                                 onClick: 'alert("Documentation clicked!")',
-                                variant: 'secondary',
                             },
                         },
                     ],
@@ -325,7 +323,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 text: 'Connect',
                                 onClick: 'alert("Connect clicked!")',
-                                variant: 'primary',
                             },
                             instanceStyles: {
                                 marginRight: '0.5rem',
@@ -338,7 +335,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 text: 'API Docs',
                                 onClick: 'alert("API Docs clicked!")',
-                                variant: 'secondary',
                             },
                         },
                     ],
