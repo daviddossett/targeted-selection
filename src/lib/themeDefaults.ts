@@ -1,30 +1,34 @@
 import { ThemeSettings } from './types';
 
 export const defaultTheme: ThemeSettings = {
-    primaryAccent: '#3b82f6', // Blue-500
-    secondaryAccent: '#10b981', // Emerald-500
-    primaryBackground: '#ffffff', // White
-    secondaryBackground: '#f3f4f6', // Gray-100
-    primaryText: '#111827', // Gray-900
-    secondaryText: '#6b7280', // Gray-500
+    primaryAccent: 'bg-blue-500',
+    secondaryAccent: 'bg-emerald-500',
+    primaryBackground: 'bg-white',
+    secondaryBackground: 'bg-gray-100',
+    primaryText: 'text-gray-900',
+    secondaryText: 'text-gray-500',
     fontFamily: 'Inter, system-ui, sans-serif',
     borderRadius: '0.375rem', // Default medium rounded corners
     cardShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
     buttonShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
 };
 
-// Simplified accent color list with only 500 variants from each color family
+// Curated accent colors for the main dropdown
 export const commonAccentColors = [
-    { value: '#3b82f6', label: 'Blue 500', category: 'accent', id: 'blue-500', tailwindClass: 'bg-blue-500' },
-    { value: '#6366f1', label: 'Indigo 500', category: 'accent', id: 'indigo-500', tailwindClass: 'bg-indigo-500' },
-    { value: '#8b5cf6', label: 'Purple 500', category: 'accent', id: 'purple-500', tailwindClass: 'bg-purple-500' },
-    { value: '#ec4899', label: 'Pink 500', category: 'accent', id: 'pink-500', tailwindClass: 'bg-pink-500' },
-    { value: '#ef4444', label: 'Red 500', category: 'accent', id: 'red-500', tailwindClass: 'bg-red-500' },
-    { value: '#f97316', label: 'Orange 500', category: 'accent', id: 'orange-500', tailwindClass: 'bg-orange-500' },
-    { value: '#eab308', label: 'Yellow 500', category: 'accent', id: 'yellow-500', tailwindClass: 'bg-yellow-500' },
-    { value: '#22c55e', label: 'Green 500', category: 'accent', id: 'green-500', tailwindClass: 'bg-green-500' },
-    { value: '#10b981', label: 'Emerald 500', category: 'accent', id: 'emerald-500', tailwindClass: 'bg-emerald-500' },
-    { value: '#14b8a6', label: 'Teal 500', category: 'accent', id: 'teal-500', tailwindClass: 'bg-teal-500' },
+    { value: 'bg-blue-500', label: 'bg-blue-500', category: 'accent', id: 'bg-blue-500' },
+    { value: 'bg-indigo-500', label: 'bg-indigo-500', category: 'accent', id: 'bg-indigo-500' },
+    { value: 'bg-purple-500', label: 'bg-purple-500', category: 'accent', id: 'bg-purple-500' },
+    { value: 'bg-pink-500', label: 'bg-pink-500', category: 'accent', id: 'bg-pink-500' },
+    { value: 'bg-red-500', label: 'bg-red-500', category: 'accent', id: 'bg-red-500' },
+    { value: 'bg-orange-500', label: 'bg-orange-500', category: 'accent', id: 'bg-orange-500' },
+    { value: 'bg-amber-500', label: 'bg-amber-500', category: 'accent', id: 'bg-amber-500' },
+    { value: 'bg-yellow-500', label: 'bg-yellow-500', category: 'accent', id: 'bg-yellow-500' },
+    { value: 'bg-lime-500', label: 'bg-lime-500', category: 'accent', id: 'bg-lime-500' },
+    { value: 'bg-green-500', label: 'bg-green-500', category: 'accent', id: 'bg-green-500' },
+    { value: 'bg-emerald-500', label: 'bg-emerald-500', category: 'accent', id: 'bg-emerald-500' },
+    { value: 'bg-teal-500', label: 'bg-teal-500', category: 'accent', id: 'bg-teal-500' },
+    { value: 'bg-cyan-500', label: 'bg-cyan-500', category: 'accent', id: 'bg-cyan-500' },
+    { value: 'bg-sky-500', label: 'bg-sky-500', category: 'accent', id: 'bg-sky-500' },
 ];
 
 export const fontOptions = [
@@ -48,68 +52,68 @@ export const borderRadiusOptions = [
 
 export const backgroundColorOptions = [
     // Neutral backgrounds
-    { value: '#ffffff', label: 'White', category: 'background', id: 'white', tailwindClass: 'bg-white' },
-    { value: '#f9fafb', label: 'Gray 50', category: 'background', id: 'gray-50', tailwindClass: 'bg-gray-50' },
-    { value: '#f3f4f6', label: 'Gray 100', category: 'background', id: 'gray-100', tailwindClass: 'bg-gray-100' },
-    { value: '#e5e7eb', label: 'Gray 200', category: 'background', id: 'gray-200', tailwindClass: 'bg-gray-200' },
-    { value: '#d1d5db', label: 'Gray 300', category: 'background', id: 'gray-300', tailwindClass: 'bg-gray-300' },
+    { value: 'bg-white', label: 'bg-white', category: 'background', id: 'bg-white' },
+    { value: 'bg-gray-50', label: 'bg-gray-50', category: 'background', id: 'bg-gray-50' },
+    { value: 'bg-gray-100', label: 'bg-gray-100', category: 'background', id: 'bg-gray-100' },
+    { value: 'bg-gray-200', label: 'bg-gray-200', category: 'background', id: 'bg-gray-200' },
+    { value: 'bg-gray-300', label: 'bg-gray-300', category: 'background', id: 'bg-gray-300' },
 
     // Slate backgrounds
-    { value: '#f8fafc', label: 'Slate 50', category: 'background', id: 'slate-50', tailwindClass: 'bg-slate-50' },
-    { value: '#f1f5f9', label: 'Slate 100', category: 'background', id: 'slate-100', tailwindClass: 'bg-slate-100' },
-    { value: '#e2e8f0', label: 'Slate 200', category: 'background', id: 'slate-200', tailwindClass: 'bg-slate-200' },
-    { value: '#cbd5e1', label: 'Slate 300', category: 'background', id: 'slate-300', tailwindClass: 'bg-slate-300' },
+    { value: 'bg-slate-50', label: 'bg-slate-50', category: 'background', id: 'bg-slate-50' },
+    { value: 'bg-slate-100', label: 'bg-slate-100', category: 'background', id: 'bg-slate-100' },
+    { value: 'bg-slate-200', label: 'bg-slate-200', category: 'background', id: 'bg-slate-200' },
+    { value: 'bg-slate-300', label: 'bg-slate-300', category: 'background', id: 'bg-slate-300' },
 
     // Zinc backgrounds
-    { value: '#fafafa', label: 'Zinc 50', category: 'background', id: 'zinc-50', tailwindClass: 'bg-zinc-50' },
-    { value: '#f4f4f5', label: 'Zinc 100', category: 'background', id: 'zinc-100', tailwindClass: 'bg-zinc-100' },
-    { value: '#e4e4e7', label: 'Zinc 200', category: 'background', id: 'zinc-200', tailwindClass: 'bg-zinc-200' },
-    { value: '#d4d4d8', label: 'Zinc 300', category: 'background', id: 'zinc-300', tailwindClass: 'bg-zinc-300' },
+    { value: 'bg-zinc-50', label: 'bg-zinc-50', category: 'background', id: 'bg-zinc-50' },
+    { value: 'bg-zinc-100', label: 'bg-zinc-100', category: 'background', id: 'bg-zinc-100' },
+    { value: 'bg-zinc-200', label: 'bg-zinc-200', category: 'background', id: 'bg-zinc-200' },
+    { value: 'bg-zinc-300', label: 'bg-zinc-300', category: 'background', id: 'bg-zinc-300' },
 
     // Blue tinted backgrounds
-    { value: '#eff6ff', label: 'Blue 50', category: 'background', id: 'blue-50', tailwindClass: 'bg-blue-50' },
-    { value: '#dbeafe', label: 'Blue 100', category: 'background', id: 'blue-100-bg', tailwindClass: 'bg-blue-100' },
+    { value: 'bg-blue-50', label: 'bg-blue-50', category: 'background', id: 'bg-blue-50' },
+    { value: 'bg-blue-100', label: 'bg-blue-100', category: 'background', id: 'bg-blue-100' },
 
     // Green tinted backgrounds
-    { value: '#f0fdf4', label: 'Green 50', category: 'background', id: 'green-50', tailwindClass: 'bg-green-50' },
-    { value: '#dcfce7', label: 'Green 100', category: 'background', id: 'green-100-bg', tailwindClass: 'bg-green-100' },
+    { value: 'bg-green-50', label: 'bg-green-50', category: 'background', id: 'bg-green-50' },
+    { value: 'bg-green-100', label: 'bg-green-100', category: 'background', id: 'bg-green-100' },
 
     // Dark mode backgrounds
-    { value: '#374151', label: 'Gray 700', category: 'background', id: 'gray-700', tailwindClass: 'bg-gray-700' },
-    { value: '#1f2937', label: 'Gray 800', category: 'background', id: 'gray-800', tailwindClass: 'bg-gray-800' },
-    { value: '#111827', label: 'Gray 900', category: 'background', id: 'gray-900', tailwindClass: 'bg-gray-900' },
-    { value: '#18181b', label: 'Zinc 900', category: 'background', id: 'zinc-900', tailwindClass: 'bg-zinc-900' },
-    { value: '#0f172a', label: 'Slate 900', category: 'background', id: 'slate-900', tailwindClass: 'bg-slate-900' },
+    { value: 'bg-gray-700', label: 'bg-gray-700', category: 'background', id: 'bg-gray-700' },
+    { value: 'bg-gray-800', label: 'bg-gray-800', category: 'background', id: 'bg-gray-800' },
+    { value: 'bg-gray-900', label: 'bg-gray-900', category: 'background', id: 'bg-gray-900' },
+    { value: 'bg-zinc-900', label: 'bg-zinc-900', category: 'background', id: 'bg-zinc-900' },
+    { value: 'bg-slate-900', label: 'bg-slate-900', category: 'background', id: 'bg-slate-900' },
 ];
 
 export const textColorOptions = [
-    // Text colors
-    { value: '#000000', label: 'Black', category: 'text', id: 'black', tailwindClass: 'text-black' },
-    { value: '#111827', label: 'Gray 900', category: 'text', id: 'gray-900-text', tailwindClass: 'text-gray-900' },
-    { value: '#1f2937', label: 'Gray 800', category: 'text', id: 'gray-800-text', tailwindClass: 'text-gray-800' },
-    { value: '#374151', label: 'Gray 700', category: 'text', id: 'gray-700-text', tailwindClass: 'text-gray-700' },
-    { value: '#4b5563', label: 'Gray 600', category: 'text', id: 'gray-600', tailwindClass: 'text-gray-600' },
-    { value: '#6b7280', label: 'Gray 500', category: 'text', id: 'gray-500', tailwindClass: 'text-gray-500' },
+    // Neutral text colors (most relevant for text)
+    { value: 'text-black', label: 'text-black', category: 'text', id: 'text-black' },
+    { value: 'text-gray-950', label: 'text-gray-950', category: 'text', id: 'text-gray-950' },
+    { value: 'text-gray-900', label: 'text-gray-900', category: 'text', id: 'text-gray-900' },
+    { value: 'text-gray-800', label: 'text-gray-800', category: 'text', id: 'text-gray-800' },
+    { value: 'text-gray-700', label: 'text-gray-700', category: 'text', id: 'text-gray-700' },
+    { value: 'text-gray-600', label: 'text-gray-600', category: 'text', id: 'text-gray-600' },
+    { value: 'text-gray-500', label: 'text-gray-500', category: 'text', id: 'text-gray-500' },
+    { value: 'text-gray-400', label: 'text-gray-400', category: 'text', id: 'text-gray-400' },
 
-    // Slate text colors
-    { value: '#0f172a', label: 'Slate 900', category: 'text', id: 'slate-900-text', tailwindClass: 'text-slate-900' },
-    { value: '#1e293b', label: 'Slate 800', category: 'text', id: 'slate-800', tailwindClass: 'text-slate-800' },
-    { value: '#334155', label: 'Slate 700', category: 'text', id: 'slate-700', tailwindClass: 'text-slate-700' },
-    { value: '#475569', label: 'Slate 600', category: 'text', id: 'slate-600', tailwindClass: 'text-slate-600' },
-    { value: '#64748b', label: 'Slate 500', category: 'text', id: 'slate-500', tailwindClass: 'text-slate-500' },
+    // Slate variants (popular for text)
+    { value: 'text-slate-900', label: 'text-slate-900', category: 'text', id: 'text-slate-900' },
+    { value: 'text-slate-800', label: 'text-slate-800', category: 'text', id: 'text-slate-800' },
+    { value: 'text-slate-700', label: 'text-slate-700', category: 'text', id: 'text-slate-700' },
+    { value: 'text-slate-600', label: 'text-slate-600', category: 'text', id: 'text-slate-600' },
+    { value: 'text-slate-500', label: 'text-slate-500', category: 'text', id: 'text-slate-500' },
 
-    // Blue tinted text
-    { value: '#1e40af', label: 'Blue 800', category: 'text', id: 'blue-800', tailwindClass: 'text-blue-800' },
-    { value: '#1e3a8a', label: 'Blue 900', category: 'text', id: 'blue-900', tailwindClass: 'text-blue-900' },
+    // Zinc variants (neutral gray)
+    { value: 'text-zinc-900', label: 'text-zinc-900', category: 'text', id: 'text-zinc-900' },
+    { value: 'text-zinc-800', label: 'text-zinc-800', category: 'text', id: 'text-zinc-800' },
+    { value: 'text-zinc-700', label: 'text-zinc-700', category: 'text', id: 'text-zinc-700' },
+    { value: 'text-zinc-600', label: 'text-zinc-600', category: 'text', id: 'text-zinc-600' },
+    { value: 'text-zinc-500', label: 'text-zinc-500', category: 'text', id: 'text-zinc-500' },
 
-    // Green tinted text
-    { value: '#166534', label: 'Green 800', category: 'text', id: 'green-800', tailwindClass: 'text-green-800' },
-    { value: '#14532d', label: 'Green 900', category: 'text', id: 'green-900', tailwindClass: 'text-green-900' },
-
-    // Light text colors (for dark backgrounds)
-    { value: '#ffffff', label: 'White', category: 'text', id: 'white-text', tailwindClass: 'text-white' },
-    { value: '#f9fafb', label: 'Gray 50', category: 'text', id: 'gray-50-text', tailwindClass: 'text-gray-50' },
-    { value: '#f3f4f6', label: 'Gray 100', category: 'text', id: 'gray-100-text', tailwindClass: 'text-gray-100' },
-    { value: '#e5e7eb', label: 'Gray 200', category: 'text', id: 'gray-200-text', tailwindClass: 'text-gray-200' },
-    { value: '#d1d5db', label: 'Gray 300', category: 'text', id: 'gray-300-text', tailwindClass: 'text-gray-300' },
+    // Light text colors for dark backgrounds
+    { value: 'text-white', label: 'text-white', category: 'text', id: 'text-white' },
+    { value: 'text-gray-100', label: 'text-gray-100', category: 'text', id: 'text-gray-100' },
+    { value: 'text-gray-200', label: 'text-gray-200', category: 'text', id: 'text-gray-200' },
+    { value: 'text-gray-300', label: 'text-gray-300', category: 'text', id: 'text-gray-300' },
 ];

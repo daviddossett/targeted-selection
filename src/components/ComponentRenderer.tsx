@@ -179,26 +179,27 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
       finalStyles.fontFamily = themeSettings.fontFamily;
     }
 
-    // Apply background colors based on component type
-    if (!finalStyles.backgroundColor) {
+    // Apply background colors based on component type only if no color is explicitly set
+    // This includes tailwind classes that start with "bg-"
+    const hasExplicitBgColor = finalStyles.backgroundColor !== undefined && finalStyles.backgroundColor !== "";
+    if (!hasExplicitBgColor) {
       if (component.type === "button") {
         finalStyles.backgroundColor = themeSettings.primaryAccent;
       } else if (component.type === "card") {
         finalStyles.backgroundColor = themeSettings.primaryBackground;
       } else if (component.type === "container") {
-        // Containers can use secondary background for visual distinction
         finalStyles.backgroundColor = themeSettings.secondaryBackground;
       }
     }
 
     // Apply text color inheritance from theme if not explicitly set
-    if (!finalStyles.color) {
+    // This includes tailwind classes that start with "text-"
+    const hasExplicitTextColor = finalStyles.color !== undefined && finalStyles.color !== "";
+    if (!hasExplicitTextColor) {
       if (component.type === "button") {
         // Auto-detect if we need light or dark text based on background color
         const bgColor = (finalStyles.backgroundColor as string) || themeSettings.primaryAccent;
         finalStyles.color = isLightColor(bgColor) ? themeSettings.primaryText : "#ffffff";
-      } else if (component.type === "card" || component.type === "text") {
-        finalStyles.color = themeSettings.primaryText;
       } else {
         finalStyles.color = themeSettings.primaryText;
       }
@@ -234,7 +235,11 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   // Helper function to determine if a color is light or dark
   const isLightColor = (color: string): boolean => {
     // Default to false for non-hex colors or undefined
-    if (!color || !color.startsWith("#")) return false;
+    if (!color || (!color.startsWith("#") && !color.startsWith("bg-"))) return false;
+
+    // If it's a Tailwind class, we'll assume it's a light color for now
+    // This could be improved by checking the actual color value from Tailwind's color palette
+    if (color.startsWith("bg-")) return true;
 
     // Convert hex to RGB
     const hex = color.replace("#", "");
@@ -254,6 +259,57 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   const componentStyles = getStyles() as React.CSSProperties;
   const combinedStyles = applyThemeStyles(componentStyles);
 
+  // Get the component's Tailwind classes
+  const getTailwindClasses = () => {
+    const classes = [];
+
+    // Add background color class if it's a Tailwind class
+    const bgColor = componentStyles.backgroundColor || "";
+    if (bgColor.startsWith("bg-")) {
+      classes.push(bgColor);
+    } else if (!componentStyles.backgroundColor) {
+      // If no explicit background color is set, use theme settings
+      if (component.type === "button" && themeSettings.primaryAccent.startsWith("bg-")) {
+        classes.push(themeSettings.primaryAccent);
+      } else if (component.type === "card" && themeSettings.primaryBackground.startsWith("bg-")) {
+        classes.push(themeSettings.primaryBackground);
+      } else if (component.type === "container" && themeSettings.secondaryBackground.startsWith("bg-")) {
+        classes.push(themeSettings.secondaryBackground);
+      }
+    }
+
+    // Add text color class if it's a Tailwind class
+    const textColor = componentStyles.color || "";
+    if (textColor.startsWith("text-")) {
+      classes.push(textColor);
+    } else if (!componentStyles.color) {
+      // If no explicit text color is set, use theme settings
+      if (themeSettings.primaryText.startsWith("text-")) {
+        classes.push(themeSettings.primaryText);
+      }
+    }
+
+    return classes.join(" ");
+  };
+
+  // Get the component's inline styles (excluding Tailwind classes)
+  const getInlineStyles = () => {
+    const styles = { ...combinedStyles };
+
+    // Remove backgroundColor if it's a Tailwind class
+    if (styles.backgroundColor?.startsWith("bg-")) {
+      delete styles.backgroundColor;
+    }
+
+    // Remove color if it's a Tailwind class
+    if (styles.color?.startsWith("text-")) {
+      delete styles.color;
+    }
+
+    return styles;
+  };
+
+  // Render the component based on its type
   switch (component.type) {
     case "button":
       return (
@@ -262,8 +318,8 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
           {HoverLabel}
           <Button
             onClick={handleClick}
-            className={cn(selectionClasses, hoverClasses)}
-            style={combinedStyles}
+            className={cn(getTailwindClasses(), selectionClasses, hoverClasses)}
+            style={getInlineStyles()}
             size="default"
           >
             {instance.properties.text !== undefined ? instance.properties.text : component.properties.text}
@@ -292,8 +348,13 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
           {HoverLabel}
           <Element
             onClick={handleClick}
-            className={cn(elementClasses[Element as keyof typeof elementClasses], selectionClasses, hoverClasses)}
-            style={combinedStyles}
+            className={cn(
+              elementClasses[Element as keyof typeof elementClasses],
+              getTailwindClasses(),
+              selectionClasses,
+              hoverClasses
+            )}
+            style={getInlineStyles()}
           >
             {instance.properties.content !== undefined ? instance.properties.content : component.properties.content}
           </Element>
@@ -305,7 +366,11 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
         <div className="relative block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {SelectedBadge}
           {HoverLabel}
-          <Card onClick={handleClick} className={cn(selectionClasses, hoverClasses)} style={combinedStyles}>
+          <Card
+            onClick={handleClick}
+            className={cn(getTailwindClasses(), selectionClasses, hoverClasses)}
+            style={getInlineStyles()}
+          >
             <CardContent className="py-4">{renderChildren()}</CardContent>
           </Card>
         </div>
@@ -318,8 +383,8 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
           {HoverLabel}
           <div
             onClick={handleClick}
-            className={cn("flex flex-col gap-4 w-full", selectionClasses, hoverClasses)}
-            style={combinedStyles}
+            className={cn("flex flex-col gap-4 w-full", getTailwindClasses(), selectionClasses, hoverClasses)}
+            style={getInlineStyles()}
           >
             {instance.properties.title && (
               <>

@@ -2,29 +2,22 @@
 
 import React from "react";
 import { useAppContext } from "@/contexts/AppContext";
-import {
-  backgroundColorOptions,
-  textColorOptions,
-  fontOptions,
-  borderRadiusOptions,
-  commonAccentColors,
-} from "@/lib/themeDefaults";
+import { fontOptions, borderRadiusOptions } from "@/lib/themeDefaults";
 import { ThemeSettings } from "@/lib/types";
 import { StyleOptionDropdown, ColorPicker } from "./StyleOptionDropdown";
 
 export const ThemePanel: React.FC = () => {
   const { themeSettings, updateThemeSetting } = useAppContext();
 
-  const renderColorPicker = (
-    label: string,
-    value: string,
-    onChange: (value: string) => void,
-    options: Array<{ value: string; label: string; category?: string; id?: string; tailwindClass?: string }>
-  ) => {
+  const renderColorPicker = (label: string, key: keyof ThemeSettings) => {
     return (
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-900 mb-2">{label}</label>
-        <ColorPicker value={value} onChange={onChange} options={options} />
+        <ColorPicker
+          value={themeSettings[key]}
+          onChange={(value) => handleThemeUpdate(key, value)}
+          themeVariableName={key.toString()} // Pass the key as themeVariableName to show Tailwind colors
+        />
       </div>
     );
   };
@@ -45,47 +38,12 @@ export const ThemePanel: React.FC = () => {
           <h3 className="text-lg font-medium border-b pb-2 mb-4 text-gray-900">Colors</h3>
 
           <div className="space-y-6">
-            {renderColorPicker(
-              "Primary Accent",
-              themeSettings.primaryAccent,
-              (value) => handleThemeUpdate("primaryAccent", value),
-              commonAccentColors
-            )}
-
-            {renderColorPicker(
-              "Secondary Accent",
-              themeSettings.secondaryAccent,
-              (value) => handleThemeUpdate("secondaryAccent", value),
-              commonAccentColors
-            )}
-
-            {renderColorPicker(
-              "Primary Background",
-              themeSettings.primaryBackground,
-              (value) => handleThemeUpdate("primaryBackground", value),
-              backgroundColorOptions
-            )}
-
-            {renderColorPicker(
-              "Secondary Background",
-              themeSettings.secondaryBackground,
-              (value) => handleThemeUpdate("secondaryBackground", value),
-              backgroundColorOptions
-            )}
-
-            {renderColorPicker(
-              "Primary Text",
-              themeSettings.primaryText,
-              (value) => handleThemeUpdate("primaryText", value),
-              textColorOptions
-            )}
-
-            {renderColorPicker(
-              "Secondary Text",
-              themeSettings.secondaryText,
-              (value) => handleThemeUpdate("secondaryText", value),
-              textColorOptions
-            )}
+            {renderColorPicker("Primary Accent", "primaryAccent")}
+            {renderColorPicker("Secondary Accent", "secondaryAccent")}
+            {renderColorPicker("Primary Background", "primaryBackground")}
+            {renderColorPicker("Secondary Background", "secondaryBackground")}
+            {renderColorPicker("Primary Text", "primaryText")}
+            {renderColorPicker("Secondary Text", "secondaryText")}
           </div>
         </div>
 

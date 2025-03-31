@@ -6,7 +6,6 @@ import {
   fontSizeOptions,
   borderRadiusOptions,
   boxShadowOptions,
-  flatColorOptions,
   fontWeightOptions,
   spacingOptions,
 } from "@/lib/designPresets";
@@ -129,7 +128,6 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
 
         return (
           <ColorPicker
-            options={flatColorOptions}
             value={currentValue}
             onChange={onChange}
             allowInherit={true}
@@ -137,7 +135,6 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
             inheritedLabel="Inherit from component"
             isInherited={isInherited}
             onReset={() => resetInstanceStyle(key)}
-            themeVariableName={themeVariableName}
           />
         );
       }
@@ -152,7 +149,6 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
 
       return (
         <ColorPicker
-          options={flatColorOptions}
           value={currentValue || ""}
           onChange={onChange}
           allowInherit={isThemeProperty}
@@ -166,7 +162,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
                 }
               : undefined
           }
-          themeVariableName={themeVariableName}
+          // Don't pass themeVariableName here to ensure we show theme colors and not the Tailwind palette
         />
       );
     }
@@ -453,12 +449,13 @@ const ResetIcon = () => (
 const getThemeVariableForStyleProperty = (key: string): string => {
   // Map style properties to theme variables
   const styleToThemeMap: Record<string, string> = {
-    backgroundColor: "background",
-    color: "text",
-    borderColor: "border",
-    accentColor: "accent",
-    primaryColor: "primary",
-    secondaryColor: "secondary",
+    backgroundColor: "primaryBackground",
+    color: "primaryText",
+    borderColor: "primaryAccent",
+    accentColor: "primaryAccent",
+    primaryColor: "primaryAccent",
+    secondaryColor: "secondaryAccent",
+    // Add additional mappings as needed
   };
 
   return styleToThemeMap[key] || "";
