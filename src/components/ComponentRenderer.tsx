@@ -73,7 +73,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   // Badge to show when element is selected
   const SelectedBadge =
     isSelected && editorMode !== "preview" ? (
-      <div className="absolute -top-78 left-1 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10 whitespace-nowrap">
+      <div className="absolute -top-8 left-1 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10 whitespace-nowrap">
         <span>
           <span className="font-medium">{component.label}</span> - {instance.id}
         </span>
