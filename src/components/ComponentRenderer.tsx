@@ -186,22 +186,42 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
       finalStyles.fontFamily = themeSettings.fontFamily;
     }
 
-    // Apply background colors based on component type only if no color is explicitly set
+    // Apply background colors based on component type or id only if no color is explicitly set
     // This includes tailwind classes that start with "bg-"
-    const hasExplicitBgColor = finalStyles.backgroundColor !== undefined && finalStyles.backgroundColor !== "";
+    const hasExplicitBgColor =
+      finalStyles.backgroundColor !== undefined &&
+      finalStyles.backgroundColor !== "" &&
+      finalStyles.backgroundColor !== "hsl(var(--background))" &&
+      finalStyles.backgroundColor !== "hsl(var(--card))";
+
     if (!hasExplicitBgColor) {
       if (component.type === "button") {
         finalStyles.backgroundColor = themeSettings.primaryAccent;
       } else if (component.type === "card") {
-        finalStyles.backgroundColor = themeSettings.primaryBackground;
-      } else if (component.type === "container") {
+        // Card now uses secondary background
         finalStyles.backgroundColor = themeSettings.secondaryBackground;
+      } else if (component.type === "container") {
+        // Special handling for specific components
+        if (component.id === "image") {
+          finalStyles.backgroundColor = themeSettings.secondaryAccent;
+        } else if (component.id === "grid") {
+          // Grid uses primary background
+          finalStyles.backgroundColor = themeSettings.primaryBackground;
+        } else {
+          // Default for other containers
+          finalStyles.backgroundColor = themeSettings.secondaryBackground;
+        }
       }
     }
 
     // Apply text color inheritance from theme if not explicitly set
     // This includes tailwind classes that start with "text-"
-    const hasExplicitTextColor = finalStyles.color !== undefined && finalStyles.color !== "";
+    const hasExplicitTextColor =
+      finalStyles.color !== undefined &&
+      finalStyles.color !== "" &&
+      finalStyles.color !== "hsl(var(--foreground))" &&
+      finalStyles.color !== "hsl(var(--card-foreground))";
+
     if (!hasExplicitTextColor) {
       if (component.type === "button") {
         // Auto-detect if we need light or dark text based on background color
@@ -274,14 +294,27 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
     const bgColor = componentStyles.backgroundColor || "";
     if (bgColor.startsWith("bg-")) {
       classes.push(bgColor);
-    } else if (!componentStyles.backgroundColor) {
+    } else if (
+      !componentStyles.backgroundColor ||
+      componentStyles.backgroundColor === "hsl(var(--background))" ||
+      componentStyles.backgroundColor === "hsl(var(--card))"
+    ) {
       // If no explicit background color is set, use theme settings
       if (component.type === "button" && themeSettings.primaryAccent.startsWith("bg-")) {
         classes.push(themeSettings.primaryAccent);
-      } else if (component.type === "card" && themeSettings.primaryBackground.startsWith("bg-")) {
-        classes.push(themeSettings.primaryBackground);
-      } else if (component.type === "container" && themeSettings.secondaryBackground.startsWith("bg-")) {
+      } else if (component.type === "card" && themeSettings.secondaryBackground.startsWith("bg-")) {
+        // Card now uses secondary background
         classes.push(themeSettings.secondaryBackground);
+      } else if (component.type === "container") {
+        if (component.id === "image" && themeSettings.secondaryAccent.startsWith("bg-")) {
+          classes.push(themeSettings.secondaryAccent);
+        } else if (component.id === "grid" && themeSettings.primaryBackground.startsWith("bg-")) {
+          // Grid uses primary background
+          classes.push(themeSettings.primaryBackground);
+        } else if (themeSettings.secondaryBackground.startsWith("bg-")) {
+          // Default for other containers
+          classes.push(themeSettings.secondaryBackground);
+        }
       }
     }
 
@@ -289,7 +322,11 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
     const textColor = componentStyles.color || "";
     if (textColor.startsWith("text-")) {
       classes.push(textColor);
-    } else if (!componentStyles.color) {
+    } else if (
+      !componentStyles.color ||
+      componentStyles.color === "hsl(var(--foreground))" ||
+      componentStyles.color === "hsl(var(--card-foreground))"
+    ) {
       // If no explicit text color is set, use theme settings
       if (themeSettings.primaryText.startsWith("text-")) {
         classes.push(themeSettings.primaryText);

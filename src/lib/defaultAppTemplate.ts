@@ -56,7 +56,6 @@ export const defaultAppTemplate: AppDefinition = {
             type: 'container',
             label: 'Image',
             defaultStyles: {
-                backgroundColor: '#f3f4f6',
                 borderRadius: '0.375rem',
                 width: '100%',
                 height: '150px',
@@ -72,7 +71,6 @@ export const defaultAppTemplate: AppDefinition = {
             type: 'card',
             label: 'Card',
             defaultStyles: {
-                backgroundColor: 'white',
                 borderRadius: '0.5rem',
                 padding: '1.5rem',
                 width: '100%',
@@ -119,9 +117,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-1',
                             properties: {
                                 title: 'Image 1',
-                            },
-                            instanceStyles: {
-                                backgroundColor: '#e0f2fe',
                             },
                         },
                         {
@@ -183,9 +178,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 title: 'Image 2',
                             },
-                            instanceStyles: {
-                                backgroundColor: '#fef3c7',
-                            },
                         },
                         {
                             id: 'heading-2',
@@ -246,9 +238,6 @@ export const defaultAppTemplate: AppDefinition = {
                             properties: {
                                 title: 'Image 3',
                             },
-                            instanceStyles: {
-                                backgroundColor: '#dcfce7',
-                            },
                         },
                         {
                             id: 'heading-3',
@@ -308,9 +297,6 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-4',
                             properties: {
                                 title: 'Image 4',
-                            },
-                            instanceStyles: {
-                                backgroundColor: '#ddd6fe',
                             },
                         },
                         {
