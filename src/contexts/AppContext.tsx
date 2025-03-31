@@ -234,6 +234,55 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ...prev,
       [key]: value,
     }));
+
+    // Now update any component styles that reference this theme property
+    // This ensures immediate updates to components using theme colors
+    setAppDefinition((prev) => {
+      // First, identify components that reference the changed theme property
+      const updatedComponents = prev.components.map((component) => {
+        const updatedStyles = { ...component.defaultStyles };
+
+        // Check common style properties that might be using the theme values
+        if (key === "primaryAccent" && component.defaultStyles.backgroundColor === themeSettings.primaryAccent) {
+          updatedStyles.backgroundColor = value;
+        }
+        if (key === "secondaryAccent" && component.defaultStyles.backgroundColor === themeSettings.secondaryAccent) {
+          updatedStyles.backgroundColor = value;
+        }
+        if (
+          key === "primaryBackground" &&
+          component.defaultStyles.backgroundColor === themeSettings.primaryBackground
+        ) {
+          updatedStyles.backgroundColor = value;
+        }
+        if (
+          key === "secondaryBackground" &&
+          component.defaultStyles.backgroundColor === themeSettings.secondaryBackground
+        ) {
+          updatedStyles.backgroundColor = value;
+        }
+        if (
+          (key === "primaryText" || key === "secondaryText") &&
+          component.defaultStyles.color === themeSettings[key]
+        ) {
+          updatedStyles.color = value;
+        }
+
+        return {
+          ...component,
+          defaultStyles: updatedStyles,
+        };
+      });
+
+      // Update instances to trigger re-renders
+      const updatedInstances = prev.instances.map((instance) => ({ ...instance }));
+
+      return {
+        ...prev,
+        components: updatedComponents,
+        instances: updatedInstances,
+      };
+    });
   };
 
   const getSelectedInstance = (): ComponentInstance | null => {

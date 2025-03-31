@@ -1,4 +1,5 @@
 import { AppDefinition } from './types';
+import { defaultTheme } from './themeDefaults';
 
 export const defaultAppTemplate: AppDefinition = {
     components: [
@@ -15,8 +16,8 @@ export const defaultAppTemplate: AppDefinition = {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: 'bg-blue-500',
-                color: 'text-white',
+                backgroundColor: defaultTheme.primaryAccent,
+                color: defaultTheme.primaryText === 'text-white' ? 'text-white' : 'text-white',
             },
             properties: {
                 text: 'Button',
@@ -31,7 +32,7 @@ export const defaultAppTemplate: AppDefinition = {
                 fontSize: '1rem',
                 margin: '0',
                 lineHeight: '1.5',
-                color: 'text-gray-900',
+                color: defaultTheme.primaryText,
             },
             properties: {
                 content: 'Text content',
@@ -46,7 +47,7 @@ export const defaultAppTemplate: AppDefinition = {
                 fontWeight: '600',
                 margin: '0 0 0.75rem 0',
                 lineHeight: '1.2',
-                color: 'text-gray-900',
+                color: defaultTheme.primaryText,
             },
             properties: {
                 content: 'Card Heading',
@@ -64,7 +65,7 @@ export const defaultAppTemplate: AppDefinition = {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: 'bg-gray-100',
+                backgroundColor: defaultTheme.secondaryBackground,
             },
             properties: {},
         },
@@ -78,8 +79,8 @@ export const defaultAppTemplate: AppDefinition = {
                 width: '100%',
                 border: '1px solid #e5e7eb',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-                backgroundColor: 'bg-white',
-                color: 'text-gray-900',
+                backgroundColor: defaultTheme.primaryBackground,
+                color: defaultTheme.primaryText,
             },
             properties: {},
         },

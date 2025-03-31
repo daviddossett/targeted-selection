@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAppContext } from "@/contexts/AppContext";
 import { ThemeSettings } from "@/lib/types";
@@ -173,6 +173,37 @@ export function ColorPicker({
   const [activeTab, setActiveTab] = useState<"color" | "tailwind">("color");
   const [selectedColorFamily, setSelectedColorFamily] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // React to theme changes if using theme colors
+  useEffect(() => {
+    // Check if the current value is a theme color that has changed
+    // If so, update the control to reflect the new theme color
+    const themeColorMap = {
+      [themeSettings.primaryAccent]: "primaryAccent",
+      [themeSettings.secondaryAccent]: "secondaryAccent",
+      [themeSettings.primaryBackground]: "primaryBackground",
+      [themeSettings.secondaryBackground]: "secondaryBackground",
+      [themeSettings.primaryText]: "primaryText",
+      [themeSettings.secondaryText]: "secondaryText",
+    };
+
+    // If this is a component property that's using a theme color
+    // that has changed, update it to the new theme color
+    if (!themeVariableName && value) {
+      // Find if this value is a theme key
+      const themeKey = Object.entries(themeColorMap).find(([oldValue]) => oldValue === value)?.[1] as
+        | keyof ThemeSettings
+        | undefined;
+
+      if (themeKey) {
+        // If this was a theme color that changed, update to the new value
+        const newThemeValue = themeSettings[themeKey];
+        if (value !== newThemeValue) {
+          onChange(newThemeValue);
+        }
+      }
+    }
+  }, [themeSettings, value, onChange, themeVariableName]);
 
   // Determine if this is a theme-level edit (where inheritance is allowed)
   // or a component-level edit (where inheritance should be hidden)
