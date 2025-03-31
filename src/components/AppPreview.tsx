@@ -4,16 +4,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { ComponentRenderer } from "./ComponentRenderer";
 
 export const AppPreview: React.FC = () => {
-  const {
-    appDefinition,
-    editorMode,
-    setEditorMode,
-    setIsSelectMode,
-    hasUnsavedChanges,
-    saveChanges,
-    discardChanges,
-    themeSettings,
-  } = useAppContext();
+  const { appDefinition, editorMode, setEditorMode, setIsSelectMode, themeSettings } = useAppContext();
 
   const isEditMode = editorMode !== "preview";
 
@@ -77,20 +68,12 @@ export const AppPreview: React.FC = () => {
               </span>
             </button>
           ) : (
-            <div className="flex gap-2">
-              <button
-                onClick={saveChanges}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer bg-green-600 text-white hover:bg-green-700"
-              >
-                Save Changes
-              </button>
-              <button
-                onClick={discardChanges}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer bg-red-600 text-white hover:bg-red-700"
-              >
-                Discard Changes
-              </button>
-            </div>
+            <button
+              onClick={enterEditMode}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer bg-gray-100 text-gray-800 hover:bg-gray-200"
+            >
+              Exit Edit Mode
+            </button>
           )}
         </div>
       </div>
@@ -111,33 +94,11 @@ export const AppPreview: React.FC = () => {
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Components to Preview</h3>
-            <p className="text-gray-500 mb-4">Add some components from the sidebar to get started.</p>
-            <button
-              onClick={enterEditMode}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-            >
-              <span>Add Components</span>
-              <span className="text-xs px-2 py-0.5 rounded bg-blue-700">{isMac ? "⌘" : "Ctrl"}+E</span>
-            </button>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Components</h3>
+            <p className="text-gray-500">Start by creating components in the sidebar.</p>
           </div>
         )}
       </div>
-
-      {/* Save indicator */}
-      {hasUnsavedChanges && (
-        <div className="fixed bottom-4 right-4 bg-yellow-50 text-yellow-800 px-4 py-3 rounded-lg text-sm shadow-lg border border-yellow-200 flex items-center gap-2">
-          <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          <span>You have unsaved changes</span>
-        </div>
-      )}
     </div>
   );
 };

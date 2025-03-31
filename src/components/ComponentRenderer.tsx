@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ElementType } from "react";
+import React, { ElementType, useEffect } from "react";
 import { ComponentInstance, ComponentStyle } from "@/lib/types";
 import { useAppContext } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,13 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   } = useAppContext();
   const component = getComponentById(instance.componentId);
   const [isHovered, setIsHovered] = React.useState(false);
+  // Force re-render when themeSettings change by using a counter
+  const [, setRenderCounter] = React.useState(0);
+
+  // Re-render when theme settings change
+  useEffect(() => {
+    setRenderCounter((prev) => prev + 1);
+  }, [themeSettings]);
 
   if (!component) {
     return <div>Component not found: {instance.componentId}</div>;

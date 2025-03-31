@@ -5,15 +5,11 @@ import { AppDefinition, ComponentDefinition, ComponentInstance, ComponentStyle, 
 import { defaultAppTemplate } from "@/lib/defaultAppTemplate";
 import { defaultTheme } from "@/lib/themeDefaults";
 
-const LOCAL_STORAGE_KEY = "targeted-selection-app-state";
-const LOCAL_STORAGE_THEME_KEY = "targeted-selection-theme";
-
 interface AppContextType {
   appDefinition: AppDefinition;
   selectedInstanceId: string | null;
   editorMode: "instance" | "component" | "preview";
   isSelectMode: boolean;
-  hasUnsavedChanges: boolean;
   themeSettings: ThemeSettings;
   setAppDefinition: (appDefinition: AppDefinition | ((prev: AppDefinition) => AppDefinition)) => void;
   selectInstance: (id: string | null) => void;
@@ -29,8 +25,6 @@ interface AppContextType {
   getComponentById: (id: string) => ComponentDefinition | undefined;
   resetAllOverrides: (instanceId: string) => void;
   pushOverridesToComponent: (instanceId: string) => void;
-  saveChanges: () => void;
-  discardChanges: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -40,98 +34,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
   const [editorMode, setEditorMode] = useState<"instance" | "component" | "preview">("preview");
   const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  const [originalState, setOriginalState] = useState<AppDefinition | null>(null);
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultTheme);
 
-  // Load state from localStorage on initial mount
-  useEffect(() => {
-    const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedState) {
-      try {
-        const parsedState = JSON.parse(savedState);
-        setAppDefinitionState(parsedState);
-      } catch (error) {
-        console.error("Failed to parse saved state:", error);
-        // Fallback to default template if parsing fails
-        setAppDefinitionState(defaultAppTemplate);
-      }
-    }
-
-    // Load theme settings
-    const savedTheme = localStorage.getItem(LOCAL_STORAGE_THEME_KEY);
-    if (savedTheme) {
-      try {
-        const parsedTheme = JSON.parse(savedTheme);
-        setThemeSettings(parsedTheme);
-      } catch (error) {
-        console.error("Failed to parse saved theme:", error);
-        // Fallback to default theme if parsing fails
-        setThemeSettings(defaultTheme);
-      }
-    }
-  }, []);
-
-  // Save state to localStorage whenever appDefinition changes
+  // Save state to memory (no longer using localStorage)
   const setAppDefinition = (newDefinition: AppDefinition | ((prev: AppDefinition) => AppDefinition)) => {
     if (typeof newDefinition === "function") {
       setAppDefinitionState((prevState) => {
         const nextState = (newDefinition as (prev: AppDefinition) => AppDefinition)(prevState);
-        try {
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextState));
-        } catch (error) {
-          console.error("Failed to save state to localStorage:", error);
-        }
-        setHasUnsavedChanges(true);
         return nextState;
       });
     } else {
       setAppDefinitionState(newDefinition);
-      setHasUnsavedChanges(true);
-
-      // Store in localStorage
-      try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newDefinition));
-      } catch (error) {
-        console.error("Failed to save state to localStorage:", error);
-      }
     }
   };
-
-  const saveChanges = () => {
-    setHasUnsavedChanges(false);
-    setEditorMode("preview");
-    setIsSelectMode(false);
-    selectInstance(null);
-
-    // Update original state to match current state
-    setOriginalState(null);
-  };
-
-  const discardChanges = () => {
-    if (originalState) {
-      setAppDefinitionState(originalState);
-      // Also update localStorage to match the reverted state
-      try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(originalState));
-      } catch (error) {
-        console.error("Failed to save reverted state to localStorage:", error);
-      }
-    }
-
-    setHasUnsavedChanges(false);
-    setEditorMode("preview");
-    setIsSelectMode(false);
-    selectInstance(null);
-    setOriginalState(null);
-  };
-
-  // When entering edit mode, store the current state as original
-  useEffect(() => {
-    if (editorMode !== "preview" && !originalState) {
-      setOriginalState(JSON.parse(JSON.stringify(appDefinition)));
-    }
-  }, [editorMode, appDefinition, originalState]);
 
   const selectInstance = (id: string | null) => {
     setSelectedInstanceId(id);
@@ -314,16 +229,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateThemeSetting = (key: keyof ThemeSettings, value: string) => {
+    // Update theme settings immediately with no need for save button
     setThemeSettings((prev) => ({
       ...prev,
       [key]: value,
     }));
-    // Store in localStorage
-    try {
-      localStorage.setItem(LOCAL_STORAGE_THEME_KEY, JSON.stringify({ ...themeSettings, [key]: value }));
-    } catch (error) {
-      console.error("Failed to save theme settings to localStorage:", error);
-    }
   };
 
   const getSelectedInstance = (): ComponentInstance | null => {
@@ -395,7 +305,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     selectedInstanceId,
     editorMode,
     isSelectMode,
-    hasUnsavedChanges,
     themeSettings,
     setAppDefinition,
     selectInstance,
@@ -411,8 +320,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     getComponentById,
     resetAllOverrides,
     pushOverridesToComponent,
-    saveChanges,
-    discardChanges,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
