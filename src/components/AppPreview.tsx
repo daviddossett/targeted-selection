@@ -209,23 +209,25 @@ export const AppPreview: React.FC = () => {
       className={`w-full h-full ${backgroundClass} ${textClass}`} 
       style={previewStyle}
     >
-      {/* Toolbar */}
-      <div className="bg-white px-4 py-4 flex justify-between items-center border-b border-gray-200">
+      {/* Toolbar - isolated from theme changes */}
+      <div className="bg-white px-4 py-4 flex justify-between items-center border-b border-gray-200" style={{ backgroundColor: 'white', color: '#111827' }}>
         <div className="flex gap-2">
           {!isEditMode ? (
             <button
               onClick={enterEditMode}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer bg-blue-600 hover:bg-blue-700"
+              style={{ backgroundColor: '#2563eb', color: 'white' }}
             >
               <span className="flex items-center gap-2">
                 Edit Mode
-                <span className="text-xs px-2 py-0.5 rounded bg-blue-700 text-white">{isMac ? "⌘" : "Ctrl"}+E</span>
+                <span className="text-xs px-2 py-0.5 rounded bg-blue-700 text-white" style={{ backgroundColor: '#1d4ed8', color: 'white' }}>{isMac ? "⌘" : "Ctrl"}+E</span>
               </span>
             </button>
           ) : (
             <button
               onClick={enterEditMode}
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ease-in-out cursor-pointer bg-gray-100 text-gray-800 hover:bg-gray-200"
+              style={{ backgroundColor: '#f3f4f6', color: '#1f2937' }}
             >
               Exit Edit Mode
             </button>

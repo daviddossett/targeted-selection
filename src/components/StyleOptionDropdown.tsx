@@ -355,7 +355,7 @@ export function ColorPicker({
         height: "28px",
         borderRadius: "28px",
         display: "inline-block",
-        border: "1px solid #e5e7eb",
+        border: "1px solid rgba(0, 0, 0, 0.26)",
       };
     }
 
@@ -365,7 +365,7 @@ export function ColorPicker({
       height: "28px",
       borderRadius: "28px",
       display: "inline-block",
-      border: "1px solid #e5e7eb",
+      border: "1px solid rgba(0, 0, 0, 0.26)",
     };
   };
 

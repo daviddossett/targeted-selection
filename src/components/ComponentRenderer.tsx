@@ -456,7 +456,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
             className={cn("flex flex-col gap-4 w-full", getTailwindClasses(), selectionClasses, hoverClasses)}
             style={getInlineStyles()}
           >
-            {instance.properties.title && (
+            {instance.properties.title && component.id !== "image" && (
               <>
                 <h2 className="text-xl font-medium mb-4">{instance.properties.title}</h2>
                 <Separator className="my-4" />
