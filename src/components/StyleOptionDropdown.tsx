@@ -502,6 +502,20 @@ export function ColorPicker({
           </div>
         ) : (
           <div className="p-2">
+            {/* Back button positioned independently */}
+            <div className="flex items-center mb-2">
+              <button
+                className="p-1 text-xs text-gray-500 hover:text-gray-700 rounded hover:bg-gray-200"
+                onClick={() => setIsCustomMode(false)}
+                title="Back to presets"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                  <path fillRule="evenodd" d="M7.793 2.232a.75.75 0 01-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 010 10.75H10.75a.75.75 0 010-1.5h2.875a3.875 3.875 0 000-7.75H3.622l4.146 3.957a.75.75 0 01-1.036 1.085l-5.5-5.25a.75.75 0 010-1.085l5.5-5.25a.75.75 0 011.06.025z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <span className="ml-1 text-xs text-gray-500">Back to presets</span>
+            </div>
+
             {/* Compact Tabs */}
             <div className="flex bg-gray-100 p-0.5 rounded-md mb-3">
               <button
@@ -523,15 +537,6 @@ export function ColorPicker({
                 onClick={() => setActiveTab("tailwind")}
               >
                 Tailwind
-              </button>
-              <button
-                className="ml-1 p-1 text-xs text-gray-500 hover:text-gray-700 rounded hover:bg-gray-200"
-                onClick={() => setIsCustomMode(false)}
-                title="Back to presets"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                  <path fillRule="evenodd" d="M7.793 2.232a.75.75 0 01-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 010 10.75H10.75a.75.75 0 010-1.5h2.875a3.875 3.875 0 000-7.75H3.622l4.146 3.957a.75.75 0 01-1.036 1.085l-5.5-5.25a.75.75 0 010-1.085l5.5-5.25a.75.75 0 011.06.025z" clipRule="evenodd" />
-                </svg>
               </button>
             </div>
 
@@ -578,181 +583,64 @@ export function ColorPicker({
               </div>
             ) : (
               <div className="space-y-2">
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">Search</label>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full border rounded px-2 py-1 text-xs"
-                    placeholder="Search colors..."
-                  />
-                </div>
-
-                {/* Color family pills */}
-                <div className="flex flex-wrap gap-1 mb-1">
-                  <button
-                    className={`px-1.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
-                      !selectedColorFamily ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                    onClick={() => setSelectedColorFamily(null)}
-                  >
-                    All
-                  </button>
-                  {allTailwindColors.map((color) => (
-                    <button
-                      key={color.id}
-                      className={`px-1.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
-                        selectedColorFamily === color.id
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                      onClick={() => {
-                        // Reset custom selection state when switching families
-                        setSelectedColorFamily(color.id || null);
-                        setCustomTailwindClass("");
-                      }}
-                    >
-                      {color.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Color grid */}
-                <div className="max-h-40 overflow-y-auto pr-1 relative z-10">
-                  {selectedColorFamily ? (
-                    <div className="space-y-1 overflow-visible">
-                      {generateColorVariations(selectedColorFamily).map((option) => {
-                        // Extract shade info to generate dynamic style
-                        const matches = option.value.match(/bg-([a-z]+)-(\d+)/);
-                        const colorName = matches ? matches[1] : '';
-                        const shade = matches ? matches[2] : '';
-                        
-                        // Check if this color is currently selected
-                        const isSelected = option.value === value;
-                        
-                        // Get color style for preview
-                        const getColorStyle = () => {
-                          // Use the tailwindColors import instead of duplicating the mapping
-                          if (option.value === 'bg-white') return { backgroundColor: '#ffffff' };
-                          if (option.value === 'bg-black') return { backgroundColor: '#000000' };
-                          if (option.value === 'bg-transparent') return { 
-                            backgroundColor: 'transparent', 
-                            backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', 
-                            backgroundSize: '10px 10px', 
-                            backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' 
-                          };
-                          
-                          if (tailwindColors[colorName] && tailwindColors[colorName][shade]) {
-                            return { backgroundColor: tailwindColors[colorName][shade] };
-                          }
-                          
-                          return { backgroundColor: `var(--${colorName}-${shade}, #ddd)` };
-                        };
-                        
-                        return (
-                        <button
-                          key={option.value}
-                            className={`w-full flex items-center gap-2 p-1 rounded ${
-                              isSelected ? "bg-blue-50" : "hover:bg-gray-50"
-                            } transition-colors`}
-                          onClick={() => {
-                              // Apply color directly and update internal state
-                              onChange(option.value);
-                              setCustomTailwindClass(option.value);
-                            }}
-                          >
-                            <div 
-                              className={`w-6 h-6 rounded-full border border-gray-200 ${
-                                isSelected ? "ring-1 ring-blue-500" : ""
-                              }`}
-                              style={getColorStyle()}
-                            />
-                            <span className="text-xs text-gray-700">{option.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="space-y-2 overflow-visible">
-                      {allTailwindColors.map((colorFamily) => (
-                        <div key={colorFamily.id} className="space-y-1">
-                          <div className="text-xs font-medium text-gray-500">{colorFamily.label}</div>
-                          <div className="flex flex-wrap gap-1 relative">
-                            {generateColorVariations(colorFamily.id || "").map((option) => {
-                              // Extract shade info to generate dynamic style
-                              const matches = option.value.match(/bg-([a-z]+)-(\d+)/);
-                              const colorName = matches ? matches[1] : '';
-                              const shade = matches ? matches[2] : '';
-                              
-                              // Check if this color is currently selected - compare only with actual value
-                              const isSelected = option.value === value;
-                              
-                              // Get color style for preview
-                              const getListColorStyle = () => {
-                                // Use the tailwindColors import instead of duplicating the mapping
-                                if (option.value === 'bg-white') return { backgroundColor: '#ffffff' };
-                                if (option.value === 'bg-black') return { backgroundColor: '#000000' };
-                                if (option.value === 'bg-transparent') return { 
-                                  backgroundColor: 'transparent', 
-                                  backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', 
-                                  backgroundSize: '10px 10px', 
-                                  backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' 
-                                };
-                                
-                                if (tailwindColors[colorName] && tailwindColors[colorName][shade]) {
-                                  return { backgroundColor: tailwindColors[colorName][shade] };
-                                }
-                                
-                                return { backgroundColor: `var(--${colorName}-${shade}, #ddd)` };
+                {/* All colors view - removed search and pills */}
+                <div className="max-h-72 overflow-y-auto pr-1 relative z-10">
+                  <div className="space-y-2 overflow-visible">
+                    {allTailwindColors.map((colorFamily) => (
+                      <div key={colorFamily.id} className="space-y-1">
+                        <div className="text-xs font-medium text-gray-500">{colorFamily.label}</div>
+                        <div className="flex flex-wrap gap-1 relative">
+                          {generateColorVariations(colorFamily.id || "").map((option) => {
+                            // Extract shade info to generate dynamic style
+                            const matches = option.value.match(/bg-([a-z]+)-(\d+)/);
+                            const colorName = matches ? matches[1] : '';
+                            const shade = matches ? matches[2] : '';
+                            
+                            // Check if this color is currently selected
+                            const isSelected = option.value === value;
+                            
+                            // Get color style for preview
+                            const getListColorStyle = () => {
+                              // Use the tailwindColors import instead of duplicating the mapping
+                              if (option.value === 'bg-white') return { backgroundColor: '#ffffff' };
+                              if (option.value === 'bg-black') return { backgroundColor: '#000000' };
+                              if (option.value === 'bg-transparent') return { 
+                                backgroundColor: 'transparent', 
+                                backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', 
+                                backgroundSize: '10px 10px', 
+                                backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' 
                               };
                               
-                              return (
-                                <button
-                                  key={option.value}
-                                  title={option.label}
-                                  className={`w-7 h-7 rounded-full border transition-all ${
-                                    isSelected 
-                                      ? "ring-2 ring-offset-1 ring-blue-500 border-blue-500" 
-                                      : "border-gray-200 hover:scale-110"
-                                  }`}
-                                  onClick={() => {
-                                    // Apply color directly and update internal state
-                                    onChange(option.value);
-                                    setCustomTailwindClass(option.value);
-                                  }}
-                                  style={getListColorStyle()}
-                                >
-                                </button>
-                              );
-                            })}
-                          </div>
+                              if (tailwindColors[colorName] && tailwindColors[colorName][shade]) {
+                                return { backgroundColor: tailwindColors[colorName][shade] };
+                              }
+                              
+                              return { backgroundColor: `var(--${colorName}-${shade}, #ddd)` };
+                            };
+                            
+                            return (
+                              <button
+                                key={option.value}
+                                title={option.label}
+                                className={`w-7 h-7 rounded-full border transition-all ${
+                                  isSelected 
+                                    ? "ring-2 ring-offset-1 ring-blue-500 border-blue-500" 
+                                    : "border-gray-200 hover:scale-110"
+                                }`}
+                                onClick={() => {
+                                  // Apply color directly and update internal state
+                                  onChange(option.value);
+                                  setCustomTailwindClass(option.value);
+                                }}
+                                style={getListColorStyle()}
+                              >
+                              </button>
+                            );
+                          })}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">Selected Class</label>
-                  <input
-                    type="text"
-                    value={customTailwindClass}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val.startsWith("bg-") || val.startsWith("text-") || val === "") {
-                        setCustomTailwindClass(val);
-                        setCustomColor("");
-                        
-                        // Apply immediately when entering valid values
-                        if (val.startsWith("bg-") || val.startsWith("text-")) {
-                          onChange(val);
-                        }
-                      }
-                    }}
-                    className="w-full border rounded px-2 py-1 text-xs"
-                    placeholder={isTextColor ? "text-gray-900" : "bg-blue-500"}
-                  />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
