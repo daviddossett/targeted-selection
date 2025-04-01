@@ -17,7 +17,7 @@ export const defaultAppTemplate: AppDefinition = {
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: defaultTheme.primaryAccent,
-                color: defaultTheme.primaryText,
+                color: 'text-white',
             },
             properties: {
                 text: 'Button',
@@ -67,7 +67,10 @@ export const defaultAppTemplate: AppDefinition = {
                 justifyContent: 'center',
                 backgroundColor: defaultTheme.secondaryBackground,
             },
-            properties: {},
+            properties: {
+                imageSrc: 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+                imageAlt: 'Default image',
+            },
         },
         {
             id: 'card',
@@ -78,7 +81,6 @@ export const defaultAppTemplate: AppDefinition = {
                 padding: '1.5rem',
                 width: '100%',
                 border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
                 backgroundColor: defaultTheme.primaryBackground,
             },
             properties: {},
@@ -121,6 +123,8 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-1',
                             properties: {
                                 title: 'Image 1',
+                                imageSrc: 'https://images.unsplash.com/photo-1541625602330-2277a4c46182?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+                                imageAlt: 'Gravel cyclist on mountain trail',
                             },
                         },
                         {
@@ -128,7 +132,7 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'heading',
                             parentId: 'card-1',
                             properties: {
-                                content: 'Product Feature',
+                                content: 'About the Event',
                             },
                         },
                         {
@@ -136,7 +140,7 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'text',
                             parentId: 'card-1',
                             properties: {
-                                content: 'This is a description of the first card. It provides details about the features and benefits.',
+                                content: 'Join us for an epic 75-mile gravel adventure through the stunning Cascade Mountains. Experience breathtaking views, challenging terrain, and the best gravel Washington has to offer.',
                             },
                             instanceStyles: {
                                 marginBottom: '1.5rem',
@@ -147,8 +151,8 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'button',
                             parentId: 'card-1',
                             properties: {
-                                text: 'Learn More',
-                                onClick: 'alert("Learn more clicked!")',
+                                text: 'Register Now',
+                                onClick: 'alert("Registration clicked!")',
                             },
                             instanceStyles: {
                                 marginRight: '0.5rem',
@@ -159,8 +163,8 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'button',
                             parentId: 'card-1',
                             properties: {
-                                text: 'Dismiss',
-                                onClick: 'alert("Dismissed!")',
+                                text: 'View Route',
+                                onClick: 'alert("Route details clicked!")',
                             },
                         },
                     ],
@@ -179,6 +183,8 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-2',
                             properties: {
                                 title: 'Image 2',
+                                imageSrc: 'https://images.unsplash.com/photo-1576698483491-8c43f0862543?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+                                imageAlt: 'Elevation chart and trail map',
                             },
                         },
                         {
@@ -186,7 +192,7 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'heading',
                             parentId: 'card-2',
                             properties: {
-                                content: 'User Experience',
+                                content: 'Course Highlights',
                             },
                         },
                         {
@@ -194,7 +200,7 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'text',
                             parentId: 'card-2',
                             properties: {
-                                content: 'The second card explains how our product enhances the user experience and creates engagement.',
+                                content: 'Our carefully curated route features forest service roads, moderate climbs, and fast descents. With 6,500 feet of elevation gain and stunning views of Mt. Rainier, this ride offers the ultimate PNW gravel experience.',
                             },
                             instanceStyles: {
                                 marginBottom: '1.5rem',
@@ -205,8 +211,8 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'button',
                             parentId: 'card-2',
                             properties: {
-                                text: 'Get Started',
-                                onClick: 'alert("Getting started!")',
+                                text: 'View Elevation Profile',
+                                onClick: 'alert("Elevation profile clicked!")',
                             },
                             instanceStyles: {
                                 marginRight: '0.5rem',
@@ -217,8 +223,8 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'button',
                             parentId: 'card-2',
                             properties: {
-                                text: 'Learn More',
-                                onClick: 'alert("Learn more clicked!")',
+                                text: 'Download GPX',
+                                onClick: 'alert("GPX download clicked!")',
                             },
                         },
                     ],
@@ -237,6 +243,8 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-3',
                             properties: {
                                 title: 'Image 3',
+                                imageSrc: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+                                imageAlt: 'Cyclists at an aid station',
                             },
                         },
                         {
@@ -244,7 +252,7 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'heading',
                             parentId: 'card-3',
                             properties: {
-                                content: 'Performance',
+                                content: 'Rider Support',
                             },
                         },
                         {
@@ -252,7 +260,7 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'text',
                             parentId: 'card-3',
                             properties: {
-                                content: 'The third card highlights the performance metrics and efficiency improvements of our solution.',
+                                content: 'We provide full rider support with three well-stocked aid stations, mechanical assistance, and medical support. Post-ride, enjoy local craft beer, wood-fired pizza, and live music at our festival finish area.',
                             },
                             instanceStyles: {
                                 marginBottom: '1.5rem',
@@ -263,8 +271,8 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'button',
                             parentId: 'card-3',
                             properties: {
-                                text: 'View Demo',
-                                onClick: 'alert("Demo viewed!")',
+                                text: 'Aid Station Info',
+                                onClick: 'alert("Aid stations clicked!")',
                             },
                             instanceStyles: {
                                 marginRight: '0.5rem',
@@ -275,8 +283,8 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'button',
                             parentId: 'card-3',
                             properties: {
-                                text: 'Documentation',
-                                onClick: 'alert("Documentation clicked!")',
+                                text: 'Festival Details',
+                                onClick: 'alert("Festival info clicked!")',
                             },
                         },
                     ],
@@ -295,6 +303,8 @@ export const defaultAppTemplate: AppDefinition = {
                             parentId: 'card-4',
                             properties: {
                                 title: 'Image 4',
+                                imageSrc: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+                                imageAlt: 'Scenic view of Leavenworth, WA',
                             },
                         },
                         {
@@ -302,7 +312,7 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'heading',
                             parentId: 'card-4',
                             properties: {
-                                content: 'Integration',
+                                content: 'Logistics & Lodging',
                             },
                         },
                         {
@@ -310,7 +320,7 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'text',
                             parentId: 'card-4',
                             properties: {
-                                content: 'The fourth card shows how our product integrates with existing workflows and systems.',
+                                content: 'Based in the charming town of Leavenworth, WA. We\'ve secured discounted rates at partner hotels and campgrounds. Free parking is available at the start/finish area, with shuttle service from downtown.',
                             },
                             instanceStyles: {
                                 marginBottom: '1.5rem',
@@ -321,8 +331,8 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'button',
                             parentId: 'card-4',
                             properties: {
-                                text: 'Connect',
-                                onClick: 'alert("Connect clicked!")',
+                                text: 'Book Lodging',
+                                onClick: 'alert("Lodging options clicked!")',
                             },
                             instanceStyles: {
                                 marginRight: '0.5rem',
@@ -333,8 +343,8 @@ export const defaultAppTemplate: AppDefinition = {
                             componentId: 'button',
                             parentId: 'card-4',
                             properties: {
-                                text: 'API Docs',
-                                onClick: 'alert("API Docs clicked!")',
+                                text: 'Travel Info',
+                                onClick: 'alert("Travel info clicked!")',
                             },
                         },
                     ],

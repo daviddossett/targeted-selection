@@ -91,6 +91,8 @@ const allTailwindColors: ColorOption[] = [
   { value: "fuchsia", label: "Fuchsia", id: "fuchsia" },
   { value: "pink", label: "Pink", id: "pink" },
   { value: "rose", label: "Rose", id: "rose" },
+  { value: "white", label: "White", id: "white" },
+  { value: "black", label: "Black", id: "black" },
 ];
 
 // Base colors that don't fit in the groups
@@ -150,6 +152,15 @@ const getThemeColorOptions = (themeSettings: ThemeSettings, isTextColor?: boolea
 const generateColorVariations = (colorName: string, prefix = "bg-"): ColorOption[] => {
   if (!colorName) return [];
   
+  // Special cases for single-shade colors
+  if (colorName === "white" || colorName === "black" || colorName === "transparent") {
+    return [{ 
+      value: `${prefix}${colorName}`, 
+      label: `${prefix}${colorName}`, 
+      id: `${colorName}` 
+    }];
+  }
+  
   const colorShades: Record<string, number[]> = {
     // Gray scales have extended range
     slate: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
@@ -177,15 +188,8 @@ const generateColorVariations = (colorName: string, prefix = "bg-"): ColorOption
     rose: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
   };
 
-  // Handle special cases like 'bg-black' or if the color doesn't exist
+  // Handle if the color doesn't exist in our shade map
   if (!colorShades[colorName]) {
-    if (colorName === "black" || colorName === "white" || colorName === "transparent") {
-      return [{ 
-        value: `${prefix}${colorName}`, 
-        label: `${prefix}${colorName}`, 
-        id: `${colorName}` 
-      }];
-    }
     return [];
   }
 
@@ -745,7 +749,7 @@ export function ColorPicker({
             ) : (
               <div className="space-y-2">
                 {/* All colors view - removed search and pills */}
-                <div className="max-h-72 overflow-y-auto pr-1 relative z-10">
+                <div className="max-h-72 overflow-y-auto no-overscroll pr-1 relative z-10">
                   <div className="space-y-2 overflow-visible">
                     {allTailwindColors.map((colorFamily) => (
                       <div key={`family-${colorFamily.id || colorFamily.value}`} className="space-y-1">

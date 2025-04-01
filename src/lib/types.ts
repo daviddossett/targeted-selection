@@ -50,6 +50,8 @@ export interface ComponentProperties {
     onClick?: string;
     content?: string;
     title?: string;
+    imageSrc?: string;
+    imageAlt?: string;
 }
 
 export interface ComponentDefinition {

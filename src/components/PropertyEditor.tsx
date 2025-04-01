@@ -61,6 +61,61 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
     currentValue: string | number | boolean,
     onChange: (value: string | number | boolean) => void
   ) => {
+    // Handle image source field with file upload capability
+    if (key === "imageSrc") {
+      return (
+        <div className="space-y-2">
+          {currentValue && typeof currentValue === 'string' && (
+            <div className="mb-2">
+              <img 
+                src={currentValue as string} 
+                alt="Preview" 
+                className="h-24 rounded-md object-cover"
+              />
+            </div>
+          )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={String(currentValue || '')}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="Image URL"
+              className="block w-full rounded-md border-border bg-card shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2 border"
+            />
+            <label className="bg-blue-500 text-white px-3 py-2 rounded-md text-sm cursor-pointer hover:bg-blue-600 transition-colors flex items-center justify-center">
+              Upload
+              <input 
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  
+                  // Create a URL for the uploaded file
+                  const url = URL.createObjectURL(file);
+                  onChange(url);
+                }}
+              />
+            </label>
+          </div>
+        </div>
+      );
+    }
+
+    // Handle image alt text field
+    if (key === "imageAlt") {
+      return (
+        <input
+          type="text"
+          value={String(currentValue || '')}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Alt text for image"
+          className="block w-full rounded-md border-border bg-card shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2 border"
+        />
+      );
+    }
+
     // Keep content fields as text inputs
     if (key === "content" || key === "text") {
       return (
@@ -322,7 +377,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
       <div className="p-4 space-y-10">
         {hasComponentProperties && (
           <div className="bg-background">
-            <h3 className="text-xs font-semibold mb-4 text-gray-600">Instance properties</h3>
+            <h3 className="text-xs font-semibold mb-4 text-gray-600">Content</h3>
             <div className="space-y-4">
               {Object.entries(component.properties).map(([key, defaultValue]) => {
                 // Skip rendering the variant property
@@ -360,7 +415,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
         )}
 
         <div className="bg-background">
-          <h3 className="text-xs font-semibold mb-4 text-gray-600">Instance styles</h3>
+          <h3 className="text-xs font-semibold mb-4 text-gray-600">Style Overrides</h3>
           <div className="space-y-4">
             {sortedInstanceStyles.map(([key, defaultValue]) => {
               const styleKey = key as keyof ComponentStyle;
@@ -407,27 +462,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
 
     return (
       <div className="p-4 space-y-10">
-        <div className="bg-background">
-          <h3 className="text-xs font-semibold mb-4 text-gray-600">Properties</h3>
-          <div className="space-y-4">
-            {Object.entries(component.properties).map(([key, value]) => {
-              // Skip rendering the variant property
-              if (key === "variant") return null;
-
-              return (
-                <div key={key} className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-900">
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                  </label>
-                  {renderPropertyField(key, value as string, (newValue) =>
-                    updateComponentProperty(component.id, key, newValue)
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
+        
         <div className="bg-background">
           <h3 className="text-xs font-semibold mb-4 text-gray-600">Styles</h3>
           <div className="space-y-4">

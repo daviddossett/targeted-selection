@@ -297,11 +297,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const resetAllOverrides = (instanceId: string) => {
     setAppDefinition((prev: AppDefinition) => ({
       ...prev,
-      instances: updateInstancesRecursively(prev.instances, instanceId, (instance) => ({
-        ...instance,
-        properties: {}, // Reset all property overrides
-        instanceStyles: {}, // Reset all style overrides
-      })),
+      instances: updateInstancesRecursively(prev.instances, instanceId, (instance) => {
+        const componentDef = getComponentById(instance.componentId);
+        if (!componentDef) {
+          return instance;
+        }
+        
+        return {
+          ...instance,
+          // Instead of setting to empty object, we'll clone the component's default properties
+          properties: { ...componentDef.properties },
+          instanceStyles: {}, // Reset all style overrides
+        };
+      }),
     }));
   };
 
@@ -314,15 +322,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Start updating the app definition
     setAppDefinition((prev: AppDefinition) => {
-      // Update component properties with instance overrides
+      // Update component styles with instance overrides (but not properties)
       const updatedComponents = prev.components.map((comp: ComponentDefinition) => {
         if (comp.id === instance.componentId) {
           return {
             ...comp,
-            // Merge instance property overrides into component properties
+            // Don't push content properties to component level
             properties: {
               ...comp.properties,
-              ...instance.properties,
             },
             // Merge instance style overrides into component default styles
             defaultStyles: {
@@ -334,12 +341,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return comp;
       });
 
-      // Reset instance overrides after pushing them up
-      const updatedInstances = updateInstancesRecursively(prev.instances, instanceId, (instance) => ({
-        ...instance,
-        properties: {}, // Reset all property overrides
-        instanceStyles: {}, // Reset all style overrides
-      }));
+      // Reset instance style overrides after pushing them up
+      const updatedInstances = updateInstancesRecursively(prev.instances, instanceId, (instance) => {
+        // Get the updated component (with the new pushed values)
+        const updatedComponent = updatedComponents.find(comp => comp.id === instance.componentId);
+        if (!updatedComponent) {
+          return instance;
+        }
+        
+        return {
+          ...instance,
+          // Keep instance properties as they are
+          properties: { ...instance.properties },
+          // Only reset style overrides since they've been pushed to component level
+          instanceStyles: {}, 
+        };
+      });
 
       return {
         ...prev,

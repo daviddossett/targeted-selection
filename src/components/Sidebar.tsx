@@ -131,7 +131,7 @@ export const Sidebar: React.FC = () => {
         </div>
       )}
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto no-overscroll">
         {hasOverrides && editorMode === "instance" && (
           <div className="px-4 w-full mb-4 flex gap-2">
             <button

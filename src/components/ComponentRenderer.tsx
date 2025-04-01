@@ -26,6 +26,8 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
     editorMode,
     resetAllOverrides,
     themeSettings,
+    setEditorMode,
+    setIsSelectMode,
   } = useAppContext();
   const component = getComponentById(instance.componentId);
   const [isHovered, setIsHovered] = React.useState(false);
@@ -71,18 +73,36 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
     }
   };
 
+  // Handle double click to enter edit mode and select the component
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // Switch to instance editing mode (works from any mode including preview)
+    setEditorMode("instance");
+    
+    // Enable selection mode
+    setIsSelectMode(true);
+    
+    // Select this instance
+    selectInstance(instance.id);
+  };
+
   const isSelected = selectedInstanceId === instance.id;
 
   // Selection and hover classes
   const selectionClasses = isSelected && editorMode !== "preview"
-    ? "outline outline-3 outline-blue-500 outline-offset-2 relative"
+    ? editorMode === "component" 
+      ? "outline outline-3 outline-purple-500 outline-offset-2 relative"
+      : "outline outline-3 outline-blue-500 outline-offset-2 relative"
     : isSelectMode && editorMode !== "preview"
     ? "outline outline-dashed outline-gray-300 outline-offset-2 cursor-pointer relative"
     : "";
 
   const hoverClasses =
     isHovered && editorMode !== "preview" && !isSelected
-      ? "outline outline-2 outline-dashed outline-emerald-500 outline-offset-2 relative"
+      ? editorMode === "component"
+        ? "outline outline-2 outline-dashed outline-purple-400 outline-offset-2 relative"
+        : "outline outline-2 outline-dashed outline-emerald-500 outline-offset-2 relative"
       : "";
 
   // Mouse event handlers
@@ -99,7 +119,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
   // Badge to show when element is selected
   const SelectedBadge =
     isSelected && editorMode !== "preview" ? (
-      <div className="absolute -top-8 left-1 bg-blue-500 text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10 whitespace-nowrap">
+      <div className={`absolute -top-8 left-1 ${editorMode === "component" ? "bg-purple-500" : "bg-blue-500"} text-white text-xs py-1 px-2 rounded-t-md flex items-center gap-2 z-10 whitespace-nowrap`}>
         <span>
           <span className="font-medium">{component.label}</span> - {instance.id}
         </span>
@@ -108,7 +128,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
             e.stopPropagation();
             resetAllOverrides(instance.id);
           }}
-          className="hover:bg-blue-600 rounded p-1"
+          className={`hover:${editorMode === "component" ? "bg-purple-600" : "bg-blue-600"} rounded p-1`}
           title="Reset all overrides"
         >
           <ResetIcon />
@@ -119,7 +139,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
   // Hover label to show element type when hovering
   const HoverLabel =
     isHovered && editorMode !== "preview" && isSelectMode && !isSelected ? (
-      <div className="absolute -top-6 left-0 bg-green-500 text-white text-xs py-1 px-2 rounded-t-md z-9">
+      <div className="absolute -top-6 left-0 bg-emerald-500 text-white text-xs py-1 px-2 rounded-t-md z-9">
         {component.label}
       </div>
     ) : null;
@@ -383,11 +403,18 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
   switch (component.type) {
     case "button":
       return (
-        <div className="relative inline-block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div 
+          className="relative inline-block" 
+          onMouseEnter={handleMouseEnter} 
+          onMouseLeave={handleMouseLeave}
+          onDoubleClick={handleDoubleClick}
+          title="Double-click to edit this component"
+        >
           {SelectedBadge}
           {HoverLabel}
           <Button
             onClick={handleClick}
+            onDoubleClick={handleDoubleClick}
             className={cn(getTailwindClasses(), selectionClasses, hoverClasses)}
             style={getInlineStyles()}
           >
@@ -412,11 +439,18 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
       };
 
       return (
-        <div className={cn("relative", "block")} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div 
+          className={cn("relative", "block")} 
+          onMouseEnter={handleMouseEnter} 
+          onMouseLeave={handleMouseLeave}
+          onDoubleClick={handleDoubleClick}
+          title="Double-click to edit this component"
+        >
           {SelectedBadge}
           {HoverLabel}
           <Element
             onClick={handleClick}
+            onDoubleClick={handleDoubleClick}
             className={cn(
               elementClasses[Element as keyof typeof elementClasses],
               getTailwindClasses(),
@@ -432,11 +466,18 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
 
     case "card":
       return (
-        <div className="relative block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div 
+          className="relative block" 
+          onMouseEnter={handleMouseEnter} 
+          onMouseLeave={handleMouseLeave}
+          onDoubleClick={handleDoubleClick}
+          title="Double-click to edit this component"
+        >
           {SelectedBadge}
           {HoverLabel}
           <Card
             onClick={handleClick}
+            onDoubleClick={handleDoubleClick}
             className={cn(getTailwindClasses(), selectionClasses, hoverClasses)}
             style={getInlineStyles()}
           >
@@ -447,21 +488,76 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
 
     case "container":
       return (
-        <div className="relative block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div 
+          className="relative block" 
+          onMouseEnter={handleMouseEnter} 
+          onMouseLeave={handleMouseLeave}
+          onDoubleClick={handleDoubleClick}
+          title="Double-click to edit this component"
+        >
           {SelectedBadge}
           {HoverLabel}
           <div
             onClick={handleClick}
+            onDoubleClick={handleDoubleClick}
             className={cn("flex flex-col gap-4 w-full", getTailwindClasses(), selectionClasses, hoverClasses)}
             style={getInlineStyles()}
           >
-            {instance.properties.title && component.id !== "image" && (
+            {component.id === "image" ? (
+              instance.properties.imageSrc ? (
+                <img 
+                  src={instance.properties.imageSrc} 
+                  alt={instance.properties.imageAlt || instance.properties.title || "Image"} 
+                  className="object-cover w-full h-full rounded-md"
+                  onError={(e) => {
+                    // If image fails to load, replace with placeholder
+                    e.currentTarget.onerror = null; // Prevent infinite error loop
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement?.classList.add('img-error');
+                    // Insert error placeholder if it doesn't exist
+                    if (!e.currentTarget.nextElementSibling) {
+                      const placeholder = document.createElement('div');
+                      placeholder.className = 'w-full h-full flex items-center justify-center bg-gray-100 rounded-md';
+                      placeholder.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="ml-2 text-gray-500">Failed to load: ${instance.properties.imageSrc?.substring(0, 30)}...</span>
+                      `;
+                      e.currentTarget.parentElement?.appendChild(placeholder);
+                    }
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-md">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-12 w-12 text-gray-400" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={1.5} 
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                    />
+                  </svg>
+                  <span className="ml-2 text-gray-500">{instance.properties.title || "Image"}</span>
+                </div>
+              )
+            ) : (
               <>
-                <h2 className="text-xl font-medium mb-4">{instance.properties.title}</h2>
-                <Separator className="my-4" />
+                {instance.properties.title && component.id !== "image" && (
+                  <>
+                    <h2 className="text-xl font-medium mb-4">{instance.properties.title}</h2>
+                    <Separator className="my-4" />
+                  </>
+                )}
+                {renderChildren()}
               </>
             )}
-            {renderChildren()}
           </div>
         </div>
       );

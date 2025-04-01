@@ -114,7 +114,10 @@ export const tailwindColors: Record<string, Record<string, string>> = {
     '50': '#fafaf9', '100': '#f5f5f4', '200': '#e7e5e4', '300': '#d6d3d1', 
     '400': '#a8a29e', '500': '#78716c', '600': '#57534e', '700': '#44403c', 
     '800': '#292524', '900': '#1c1917', '950': '#0c0a09'
-  }
+  },
+  // Add white and black
+  white: { 'DEFAULT': '#ffffff' },
+  black: { 'DEFAULT': '#000000' }
 };
 
 export const AppPreview: React.FC = () => {
@@ -129,13 +132,19 @@ export const AppPreview: React.FC = () => {
     
     // Apply background color to main preview container
     if (themeSettings.primaryBackground?.startsWith("bg-")) {
-      const bgColorMatch = themeSettings.primaryBackground.match(/bg-([a-z]+)-(\d+)/);
-      if (bgColorMatch) {
-        const colorFamily = bgColorMatch[1];
-        const shade = bgColorMatch[2];
-        if (tailwindColors[colorFamily]?.[shade]) {
-          // Apply the hex color directly to ensure it's visible even if Tailwind didn't generate the class
-          previewContainerRef.current.style.backgroundColor = tailwindColors[colorFamily][shade];
+      if (themeSettings.primaryBackground === 'bg-white') {
+        previewContainerRef.current.style.backgroundColor = tailwindColors.white.DEFAULT;
+      } else if (themeSettings.primaryBackground === 'bg-black') {
+        previewContainerRef.current.style.backgroundColor = tailwindColors.black.DEFAULT;
+      } else {
+        const bgColorMatch = themeSettings.primaryBackground.match(/bg-([a-z]+)-(\d+)/);
+        if (bgColorMatch) {
+          const colorFamily = bgColorMatch[1];
+          const shade = bgColorMatch[2];
+          if (tailwindColors[colorFamily]?.[shade]) {
+            // Apply the hex color directly to ensure it's visible even if Tailwind didn't generate the class
+            previewContainerRef.current.style.backgroundColor = tailwindColors[colorFamily][shade];
+          }
         }
       }
     }
@@ -144,9 +153,9 @@ export const AppPreview: React.FC = () => {
     if (themeSettings.primaryText?.startsWith("text-")) {
       // Handle special cases
       if (themeSettings.primaryText === 'text-white') {
-        previewContainerRef.current.style.color = '#ffffff';
+        previewContainerRef.current.style.color = tailwindColors.white.DEFAULT;
       } else if (themeSettings.primaryText === 'text-black') {
-        previewContainerRef.current.style.color = '#000000';
+        previewContainerRef.current.style.color = tailwindColors.black.DEFAULT;
       } else {
         const textColorMatch = themeSettings.primaryText.match(/text-([a-z]+)-(\d+)/);
         if (textColorMatch) {
@@ -166,6 +175,15 @@ export const AppPreview: React.FC = () => {
       const classList = Array.from(el.classList);
       const bgClass = classList.find(cls => cls.startsWith("bg-"));
       if (bgClass) {
+        if (bgClass === 'bg-white') {
+          (el as HTMLElement).style.backgroundColor = tailwindColors.white.DEFAULT;
+          return;
+        }
+        if (bgClass === 'bg-black') {
+          (el as HTMLElement).style.backgroundColor = tailwindColors.black.DEFAULT;
+          return;
+        }
+        
         const bgColorMatch = bgClass.match(/bg-([a-z]+)-(\d+)/);
         if (bgColorMatch) {
           const colorFamily = bgColorMatch[1];
@@ -185,11 +203,11 @@ export const AppPreview: React.FC = () => {
       if (textClass) {
         // Handle special cases
         if (textClass === 'text-white') {
-          (el as HTMLElement).style.color = '#ffffff';
+          (el as HTMLElement).style.color = tailwindColors.white.DEFAULT;
           return;
         }
         if (textClass === 'text-black') {
-          (el as HTMLElement).style.color = '#000000';
+          (el as HTMLElement).style.color = tailwindColors.black.DEFAULT;
           return;
         }
         
@@ -283,7 +301,7 @@ export const AppPreview: React.FC = () => {
       </div>
 
       {/* Preview Content - Scrollable container */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto no-overscroll">
         <div className="p-4 min-h-full">
           {appDefinition.instances && appDefinition.instances.length > 0 ? (
             <ComponentRenderer instance={appDefinition.instances[0]} />
