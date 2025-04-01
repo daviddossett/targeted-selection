@@ -377,7 +377,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
       <div className="p-4 space-y-10">
         {hasComponentProperties && (
           <div className="bg-background">
-            <h3 className="text-xs font-semibold mb-4 text-gray-600">Content</h3>
+            <h3 className="text-xs font-semibold mb-4 text-gray-600">Instance properties</h3>
             <div className="space-y-4">
               {Object.entries(component.properties).map(([key, defaultValue]) => {
                 // Skip rendering the variant property
@@ -415,7 +415,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
         )}
 
         <div className="bg-background">
-          <h3 className="text-xs font-semibold mb-4 text-gray-600">Style Overrides</h3>
+          <h3 className="text-xs font-semibold mb-4 text-gray-600">Instance styles</h3>
           <div className="space-y-4">
             {sortedInstanceStyles.map(([key, defaultValue]) => {
               const styleKey = key as keyof ComponentStyle;
@@ -462,7 +462,27 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
 
     return (
       <div className="p-4 space-y-10">
-        
+        <div className="bg-background">
+          <h3 className="text-xs font-semibold mb-4 text-gray-600">Properties</h3>
+          <div className="space-y-4">
+            {Object.entries(component.properties).map(([key, value]) => {
+              // Skip rendering the variant property
+              if (key === "variant") return null;
+
+              return (
+                <div key={key} className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-900">
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </label>
+                  {renderPropertyField(key, value as string, (newValue) =>
+                    updateComponentProperty(component.id, key, newValue)
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="bg-background">
           <h3 className="text-xs font-semibold mb-4 text-gray-600">Styles</h3>
           <div className="space-y-4">
