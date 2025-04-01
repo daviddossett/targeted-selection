@@ -251,10 +251,9 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, 
 
     if (!hasExplicitTextColor) {
       if (component.type === "button") {
-        // Auto-detect if we need light or dark text based on background color
-        const bgColor = (finalStyles.backgroundColor as string) || themeSettings.primaryAccent;
-        finalStyles.color = isLightColor(bgColor) ? themeSettings.primaryText : "#ffffff";
-      } else {
+        // Use theme's primary text color instead of auto-detecting
+        finalStyles.color = themeSettings.primaryText;
+      } else if (component.type !== "card") { // Don't apply text color to card components
         finalStyles.color = themeSettings.primaryText;
       }
     }
@@ -481,6 +480,12 @@ export const getHexFromTailwindClass = (className: string): string | null => {
                  className.startsWith("text-") ? "text-" : null;
   
   if (!prefix) return null;
+  
+  // Handle special cases first
+  if (className === 'text-white') return '#ffffff';
+  if (className === 'text-black') return '#000000';
+  if (className === 'bg-white') return '#ffffff';
+  if (className === 'bg-black') return '#000000';
   
   // Handle basic format: bg-{color}-{shade}
   const basicMatch = className.match(new RegExp(`${prefix}([a-z]+)-([0-9]+)`));

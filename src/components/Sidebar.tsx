@@ -61,8 +61,8 @@ export const Sidebar: React.FC = () => {
 
   return (
     <div className="w-full h-full bg-card border-r border-gray-200 flex flex-col">
-      <div className="p-4">
-        {isEditMode && selectedInstance && selectedComponent && (
+      {isEditMode && selectedInstance && selectedComponent && (
+        <div className="p-4">
           <div className="flex flex-col space-y-4">
             {/* Combined Edit Mode and Selection Badge */}
             <div
@@ -128,8 +128,8 @@ export const Sidebar: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-auto">
         {hasOverrides && editorMode === "instance" && (

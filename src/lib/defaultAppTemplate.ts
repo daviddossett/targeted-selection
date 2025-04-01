@@ -17,7 +17,7 @@ export const defaultAppTemplate: AppDefinition = {
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: defaultTheme.primaryAccent,
-                color: defaultTheme.primaryText === 'text-white' ? 'text-white' : 'text-white',
+                color: defaultTheme.primaryText,
             },
             properties: {
                 text: 'Button',
@@ -80,7 +80,6 @@ export const defaultAppTemplate: AppDefinition = {
                 border: '1px solid #e5e7eb',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
                 backgroundColor: defaultTheme.primaryBackground,
-                color: defaultTheme.primaryText,
             },
             properties: {},
         },

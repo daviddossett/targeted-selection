@@ -167,6 +167,9 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
   ) => {
     // For all color properties, show theme colors and custom option
     if (key === "color" || key === "backgroundColor" || key.includes("Color")) {
+      // Determine if this is a text color or background color
+      const isTextColor = key === "color";
+      
       return (
         <ColorPicker
           value={currentValue || ""}
@@ -175,6 +178,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({ mode }) => {
           inheritedValue={defaultValue} // Pass the inherited value from the parent component
           themeVariableName={null}
           showOnlyThemeColors={false}
+          isTextColor={isTextColor} // Force text color options for the "color" property
         />
       );
     }

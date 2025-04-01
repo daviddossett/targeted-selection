@@ -27,9 +27,9 @@ export const ThemePanel: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">Theme</h2>
+    <div className="px-4 py-8">
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Theme</h2>
       </div>
 
       <div className="space-y-10">

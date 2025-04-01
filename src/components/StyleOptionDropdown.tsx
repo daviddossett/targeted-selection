@@ -14,19 +14,20 @@ interface StyleOption {
   tailwindClass?: string; // Tailwind class representation
 }
 
-interface StyleOptionDropdownProps {
-  options: StyleOption[];
+export interface StyleOptionDropdownProps {
   value: string;
   onChange: (value: string) => void;
-  placeholder?: string;
-  renderOptionPreview?: (option: StyleOption) => React.ReactNode;
-  type: "color" | "select";
+  options: ColorOption[];
+  renderOptionPreview?: (option: ColorOption) => React.ReactNode;
+  type?: "color" | "select";
   allowInherit?: boolean;
   inheritedValue?: string;
   inheritedLabel?: string;
   isInherited?: boolean;
-  themeVariableName?: string;
+  themeVariableName?: string | null;
   label?: string;
+  placeholder?: string;
+  isTextColor?: boolean;
 }
 
 interface ColorPickerProps {
@@ -38,6 +39,8 @@ interface ColorPickerProps {
   isInherited?: boolean;
   themeVariableName?: string | null;
   showOnlyThemeColors?: boolean;
+  isTextColor?: boolean;
+  placeholder?: string;
 }
 
 interface ColorOption {
@@ -98,9 +101,9 @@ const baseColors: ColorOption[] = [
 ];
 
 // Helper function to generate theme color options with semantic names
-const getThemeColorOptions = (themeSettings: ThemeSettings) => {
+const getThemeColorOptions = (themeSettings: ThemeSettings, isTextColor?: boolean) => {
   // Create array of options
-  const options = [
+  let options = [
     { value: themeSettings.primaryAccent, label: "Primary Accent", id: "theme-primary-accent" },
     { value: themeSettings.secondaryAccent, label: "Secondary Accent", id: "theme-secondary-accent" },
     { value: themeSettings.primaryBackground, label: "Primary Background", id: "theme-primary-bg" },
@@ -108,6 +111,25 @@ const getThemeColorOptions = (themeSettings: ThemeSettings) => {
     { value: themeSettings.primaryText, label: "Primary Text", id: "theme-primary-text" },
     { value: themeSettings.secondaryText, label: "Secondary Text", id: "theme-secondary-text" },
   ];
+  
+  // Filter based on isTextColor if specified
+  if (isTextColor !== undefined) {
+    if (isTextColor) {
+      // For text colors, only show text-related theme colors
+      options = options.filter(option => 
+        option.id === "theme-primary-text" || 
+        option.id === "theme-secondary-text"
+      );
+    } else {
+      // For background colors, only show background-related theme colors
+      options = options.filter(option => 
+        option.id === "theme-primary-bg" || 
+        option.id === "theme-secondary-bg" ||
+        option.id === "theme-primary-accent" || 
+        option.id === "theme-secondary-accent"
+      );
+    }
+  }
   
   // Filter to only unique values (prevent duplicate colors)
   const uniqueOptions: ColorOption[] = [];
@@ -194,10 +216,12 @@ const normalizeColorValue = (color: string): string => {
 export function ColorPicker({
   value,
   onChange,
-  allowInherit = false,
+  placeholder = "",
   inheritedValue,
+  allowInherit = true,
   themeVariableName,
   showOnlyThemeColors = false,
+  isTextColor = false,
 }: ColorPickerProps) {
   const { themeSettings } = useAppContext();
   const [isCustomMode, setIsCustomMode] = useState(false);
@@ -247,7 +271,7 @@ export function ColorPicker({
 
   // Determine if this is a theme-level edit (where inheritance is allowed)
   // or a component-level edit (where inheritance should be hidden)
-  const showInheritOption = Boolean(themeVariableName) && allowInherit;
+  const showInheritOption = false; // Never show inheritance for app theme settings, only for component instances
 
   // Get the default color from theme to use when value is empty in component-level editing
   const getDefaultColorFromTheme = () => {
@@ -270,11 +294,14 @@ export function ColorPicker({
   const effectiveValue = getDefaultColorFromTheme();
 
   // Determine if we're dealing with text colors or background colors
-  const isTextColor =
+  const isTextMode =
     effectiveValue?.startsWith("text-") || (effectiveValue === "" && inheritedValue?.startsWith("text-"));
 
+  // Use provided isTextColor prop if available, otherwise use auto-detected isTextMode
+  const shouldUseTextColor = isTextColor !== undefined ? isTextColor : isTextMode;
+
   // Get theme color options
-  const themeColorOptions: ColorOption[] = getThemeColorOptions(themeSettings);
+  const themeColorOptions: ColorOption[] = getThemeColorOptions(themeSettings, shouldUseTextColor);
 
   // Determine which color options to display based on context:
   let displayOptions: ColorOption[];
@@ -320,7 +347,7 @@ export function ColorPicker({
   }
 
   // Get the appropriate prefix for Tailwind classes based on component type
-  const tailwindPrefix = isTextColor ? "text-" : "bg-";
+  const tailwindPrefix = shouldUseTextColor ? "text-" : "bg-";
 
   // Get the current color variations with the appropriate prefix
   const currentColorVariations = allTailwindColors.flatMap((color) =>
@@ -350,6 +377,20 @@ export function ColorPicker({
     // Apply the fallback using a data attribute that can be styled via CSS
     if (colorValue.startsWith('bg-')) {
       try {
+        // Handle special cases first
+        if (colorValue === 'bg-white') {
+          document.querySelectorAll(`[data-color-value="${colorValue}"]`).forEach(el => {
+            (el as HTMLElement).style.backgroundColor = '#ffffff';
+          });
+          return;
+        }
+        if (colorValue === 'bg-black') {
+          document.querySelectorAll(`[data-color-value="${colorValue}"]`).forEach(el => {
+            (el as HTMLElement).style.backgroundColor = '#000000';
+          });
+          return;
+        }
+        
         // Extract color information (e.g., "blue-500" from "bg-blue-500")
         const colorMatch = colorValue.match(/bg-([a-z]+)-(\d+)/);
         if (colorMatch) {
@@ -370,6 +411,20 @@ export function ColorPicker({
       }
     } else if (colorValue.startsWith('text-')) {
       try {
+        // Handle special cases first
+        if (colorValue === 'text-white') {
+          document.querySelectorAll(`[data-color-value="${colorValue}"]`).forEach(el => {
+            (el as HTMLElement).style.color = '#ffffff';
+          });
+          return;
+        }
+        if (colorValue === 'text-black') {
+          document.querySelectorAll(`[data-color-value="${colorValue}"]`).forEach(el => {
+            (el as HTMLElement).style.color = '#000000';
+          });
+          return;
+        }
+        
         // Extract color information (e.g., "blue-500" from "text-blue-500")
         const colorMatch = colorValue.match(/text-([a-z]+)-(\d+)/);
         if (colorMatch) {
@@ -450,7 +505,7 @@ export function ColorPicker({
 
       // For component-level settings, show the inherited value instead of "Theme Default"
       const inheritedColorValue =
-        inheritedValue || (isTextColor ? themeSettings.primaryText : themeSettings.primaryBackground);
+        inheritedValue || (shouldUseTextColor ? themeSettings.primaryText : themeSettings.primaryBackground);
       return (
         <div className="flex items-center space-x-2">
           <div className={`w-7 h-7 rounded-full ${inheritedColorValue}`} />
@@ -510,12 +565,20 @@ export function ColorPicker({
           {getDisplayValue()}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[320px] p-0 z-50">
+      <PopoverContent className="p-0 z-50" style={{ width: "auto", minWidth: "240px", maxWidth: "320px" }}>
         {!isCustomMode ? (
           <div className="p-3">
             {themeVariableName && (
               <div className="mb-3 text-xs text-gray-500">Select a color for {themeVariableName}</div>
             )}
+            
+            {/* Add theme color label */}
+            {displayOptions.length > 0 && !themeVariableName && (
+              <div className="mb-2 text-xs font-medium text-gray-600">
+                {shouldUseTextColor ? "Theme text colors" : "Theme background colors"}
+              </div>
+            )}
+            
             <div className="grid grid-cols-[repeat(auto-fill,32px)] gap-2 justify-start">
               {showInheritOption && (
                 <div
@@ -690,7 +753,7 @@ export function ColorPicker({
                         <div className="flex flex-wrap gap-1 relative">
                           {generateColorVariations(colorFamily.id || "", tailwindPrefix).map((option) => {
                             // Extract shade info to generate dynamic style
-                            const matches = isTextColor ? 
+                            const matches = shouldUseTextColor ? 
                               option.value.match(/text-([a-z]+)-(\d+)/) : 
                               option.value.match(/bg-([a-z]+)-(\d+)/);
                             const colorName = matches ? matches[1] : '';
@@ -705,7 +768,7 @@ export function ColorPicker({
                             // Get color style for preview
                             const getListColorStyle = () => {
                               // Use the tailwindColors import instead of duplicating the mapping
-                              if (isTextColor) {
+                              if (shouldUseTextColor) {
                                 if (option.value === 'text-white') return { backgroundColor: '#ffffff', border: '1px solid #e5e7eb' };
                                 if (option.value === 'text-black') return { backgroundColor: '#000000' };
                                 if (option.value === 'text-transparent') return { 
@@ -784,12 +847,13 @@ export function StyleOptionDropdown({
   themeVariableName,
   label,
   placeholder,
+  isTextColor,
 }: StyleOptionDropdownProps) {
   // Different components based on option type
   if (type === "color") {
     // Only allow inheritance when editing theme variables, not component-level colors
     // If themeVariableName exists, we're editing a theme setting, otherwise it's a component color
-    const showInheritOption = Boolean(themeVariableName) && allowInherit;
+    const showInheritOption = false;
 
     return (
       <div className="mb-4">
@@ -802,6 +866,7 @@ export function StyleOptionDropdown({
           inheritedLabel={inheritedLabel}
           isInherited={isInherited}
           themeVariableName={themeVariableName}
+          isTextColor={isTextColor}
         />
       </div>
     );
