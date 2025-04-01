@@ -98,14 +98,31 @@ const baseColors: ColorOption[] = [
 ];
 
 // Helper function to generate theme color options with semantic names
-const getThemeColorOptions = (themeSettings: ThemeSettings) => [
-  { value: themeSettings.primaryAccent, label: "Primary Accent", id: "theme-primary-accent" },
-  { value: themeSettings.secondaryAccent, label: "Secondary Accent", id: "theme-secondary-accent" },
-  { value: themeSettings.primaryBackground, label: "Primary Background", id: "theme-primary-bg" },
-  { value: themeSettings.secondaryBackground, label: "Secondary Background", id: "theme-secondary-bg" },
-  { value: themeSettings.primaryText, label: "Primary Text", id: "theme-primary-text" },
-  { value: themeSettings.secondaryText, label: "Secondary Text", id: "theme-secondary-text" },
-];
+const getThemeColorOptions = (themeSettings: ThemeSettings) => {
+  // Create array of options
+  const options = [
+    { value: themeSettings.primaryAccent, label: "Primary Accent", id: "theme-primary-accent" },
+    { value: themeSettings.secondaryAccent, label: "Secondary Accent", id: "theme-secondary-accent" },
+    { value: themeSettings.primaryBackground, label: "Primary Background", id: "theme-primary-bg" },
+    { value: themeSettings.secondaryBackground, label: "Secondary Background", id: "theme-secondary-bg" },
+    { value: themeSettings.primaryText, label: "Primary Text", id: "theme-primary-text" },
+    { value: themeSettings.secondaryText, label: "Secondary Text", id: "theme-secondary-text" },
+  ];
+  
+  // Filter to only unique values (prevent duplicate colors)
+  const uniqueOptions: ColorOption[] = [];
+  const seenValues = new Set<string>();
+  
+  for (const option of options) {
+    // Only add if this value hasn't been seen yet
+    if (!seenValues.has(option.value)) {
+      uniqueOptions.push(option);
+      seenValues.add(option.value);
+    }
+  }
+  
+  return uniqueOptions;
+};
 
 // Generate all color variations for a given color name
 const generateColorVariations = (colorName: string, prefix = "bg-"): ColorOption[] => {
@@ -268,8 +285,27 @@ export function ColorPicker({
   } else if (themeVariableName) {
     // App level theme settings - show appropriate color palette based on property type
     if (themeVariableName === "primaryText" || themeVariableName === "secondaryText") {
-      // For text colors, show text color options
-      displayOptions = textColorOptions;
+      // Create a collection of gray shades from the predefined text options
+      const uniqueTextColorOptions = textColorOptions.map(option => ({
+        ...option,
+        id: option.id ? `${option.id}-base` : `${option.value}-base` // Add a suffix to make keys unique
+      }));
+      
+      // Get colors that aren't already in the text color options
+      // Filter out any colors that would duplicate what's in the predefined text colors
+      const existingValues = new Set(uniqueTextColorOptions.map(o => o.value));
+      
+      // Only add non-gray colors since we already have gray shades in textColorOptions
+      const textColorVariations = allTailwindColors
+        .filter(color => color.id !== 'gray' && color.id !== 'slate' && color.id !== 'zinc' && color.id !== 'neutral' && color.id !== 'stone')
+        .map(color => ({
+          value: `text-${color.id}-500`,
+          label: `text-${color.id}-500`,
+          id: `text-${color.id}-500-variation`
+        }))
+        .filter(option => !existingValues.has(option.value));
+      
+      displayOptions = [...uniqueTextColorOptions, ...textColorVariations];
     } else {
       // For backgrounds and accents, show the standard color palette
       displayOptions = [...curatedAccentColors, ...baseColors];
@@ -283,8 +319,16 @@ export function ColorPicker({
     );
   }
 
+  // Get the appropriate prefix for Tailwind classes based on component type
+  const tailwindPrefix = isTextColor ? "text-" : "bg-";
+
+  // Get the current color variations with the appropriate prefix
+  const currentColorVariations = allTailwindColors.flatMap((color) =>
+    generateColorVariations(color.id || "", tailwindPrefix)
+  );
+
   // Filter Tailwind colors based on selected family and search term
-  const filteredTailwindColors = allColorVariations.filter((option) => {
+  const filteredTailwindColors = currentColorVariations.filter((option) => {
     const matchesSearch =
       option.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
       option.label.toLowerCase().includes(searchTerm.toLowerCase());
@@ -323,6 +367,26 @@ export function ColorPicker({
         }
       } catch (e) {
         console.error("Error applying color fallback:", e);
+      }
+    } else if (colorValue.startsWith('text-')) {
+      try {
+        // Extract color information (e.g., "blue-500" from "text-blue-500")
+        const colorMatch = colorValue.match(/text-([a-z]+)-(\d+)/);
+        if (colorMatch) {
+          const colorName = colorMatch[1];
+          const shade = colorMatch[2];
+          
+          // Find the equivalent hex color to use as a fallback
+          document.querySelectorAll(`[data-color-value="${colorValue}"]`).forEach(el => {
+            // Map to get the actual hex color
+            const colorMap = getColorMap();
+            if (colorMap[colorName] && colorMap[colorName][shade]) {
+              (el as HTMLElement).style.color = colorMap[colorName][shade];
+            }
+          });
+        }
+      } catch (e) {
+        console.error("Error applying text color fallback:", e);
       }
     }
   };
@@ -397,11 +461,24 @@ export function ColorPicker({
 
     // Different display for text vs background colors
     if (effectiveValue.startsWith("text-")) {
+      // Get the color from the tailwind class
+      const matches = effectiveValue.match(/text-([a-z]+)-(\d+)/);
+      const colorName = matches ? matches[1] : '';
+      const shade = matches ? matches[2] : '';
+      
+      let backgroundColor = '';
+      if (effectiveValue === 'text-white') backgroundColor = '#ffffff';
+      else if (effectiveValue === 'text-black') backgroundColor = '#000000';
+      else if (tailwindColors[colorName] && tailwindColors[colorName][shade]) {
+        backgroundColor = tailwindColors[colorName][shade];
+      }
+      
       return (
         <>
-          <div className="w-7 h-7 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
-            <span className={`${effectiveValue} font-medium text-base`}>A</span>
-          </div>
+          <div 
+            className={`w-7 h-7 rounded-full border border-gray-200`}
+            style={{ backgroundColor }}
+          />
           <span className="text-sm">
             {selectedOption?.label || effectiveValue}
             <span className="text-gray-500 ml-1">({effectiveValue})</span>
@@ -460,9 +537,38 @@ export function ColorPicker({
                 // Check if this option is currently selected
                 const isSelected = option.value === value;
                 
+                // Get color information for display
+                const matches = option.value.match(/(?:bg|text)-([a-z]+)-(\d+)/);
+                const colorName = matches ? matches[1] : '';
+                const shade = matches ? matches[2] : '';
+                
+                // Get appropriate style for the preview
+                const getPreviewStyle = () => {
+                  if (option.value === 'bg-white' || option.value === 'text-white') 
+                    return { backgroundColor: '#ffffff', border: '1px solid #e5e7eb' };
+                  
+                  if (option.value === 'bg-black' || option.value === 'text-black') 
+                    return { backgroundColor: '#000000' };
+                  
+                  if (option.value === 'bg-transparent' || option.value === 'text-transparent') 
+                    return { 
+                      backgroundColor: 'transparent', 
+                      backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', 
+                      backgroundSize: '10px 10px', 
+                      backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' 
+                    };
+                  
+                  if (tailwindColors[colorName] && tailwindColors[colorName][shade]) {
+                    return { backgroundColor: tailwindColors[colorName][shade] };
+                  }
+                  
+                  // Default style
+                  return {};
+                };
+                
                 return (
                 <div
-                  key={option.id || option.value}
+                  key={`${option.id || option.value}-${tailwindPrefix === "text-" ? "text" : "bg"}`}
                   className={`w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center relative ${
                       isSelected ? "after:absolute after:inset-[-2px] after:rounded-full after:ring-2 after:ring-blue-500" : ""
                   }`}
@@ -473,18 +579,10 @@ export function ColorPicker({
                   }}
                   title={option.label}
                 >
-                  {option.value?.startsWith("text-") ? (
-                    <div className="w-full h-full rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
-                      <span className={`${option.value} font-medium text-base`}>A</span>
-                    </div>
-                  ) : (
-                    <div
-                      className={`${
-                        option.value?.startsWith("bg-") ? option.value : ""
-                      } w-full h-full rounded-full border border-gray-200`}
-                      style={getColorPreviewStyle(option.value)}
-                    />
-                  )}
+                  <div
+                    className={`w-full h-full rounded-full border border-gray-200`}
+                    style={getPreviewStyle()}
+                  />
                 </div>
                 );
               })}
@@ -587,14 +685,19 @@ export function ColorPicker({
                 <div className="max-h-72 overflow-y-auto pr-1 relative z-10">
                   <div className="space-y-2 overflow-visible">
                     {allTailwindColors.map((colorFamily) => (
-                      <div key={colorFamily.id} className="space-y-1">
+                      <div key={`family-${colorFamily.id || colorFamily.value}`} className="space-y-1">
                         <div className="text-xs font-medium text-gray-500">{colorFamily.label}</div>
                         <div className="flex flex-wrap gap-1 relative">
-                          {generateColorVariations(colorFamily.id || "").map((option) => {
+                          {generateColorVariations(colorFamily.id || "", tailwindPrefix).map((option) => {
                             // Extract shade info to generate dynamic style
-                            const matches = option.value.match(/bg-([a-z]+)-(\d+)/);
+                            const matches = isTextColor ? 
+                              option.value.match(/text-([a-z]+)-(\d+)/) : 
+                              option.value.match(/bg-([a-z]+)-(\d+)/);
                             const colorName = matches ? matches[1] : '';
                             const shade = matches ? matches[2] : '';
+                            
+                            // Generate a unique key for each color option
+                            const optionKey = `${option.id || ''}${option.value}-${tailwindPrefix === "text-" ? "text" : "bg"}`;
                             
                             // Check if this color is currently selected
                             const isSelected = option.value === value;
@@ -602,6 +705,23 @@ export function ColorPicker({
                             // Get color style for preview
                             const getListColorStyle = () => {
                               // Use the tailwindColors import instead of duplicating the mapping
+                              if (isTextColor) {
+                                if (option.value === 'text-white') return { backgroundColor: '#ffffff', border: '1px solid #e5e7eb' };
+                                if (option.value === 'text-black') return { backgroundColor: '#000000' };
+                                if (option.value === 'text-transparent') return { 
+                                  backgroundColor: 'transparent', 
+                                  backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', 
+                                  backgroundSize: '10px 10px', 
+                                  backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' 
+                                };
+                                
+                                if (tailwindColors[colorName] && tailwindColors[colorName][shade]) {
+                                  return { backgroundColor: tailwindColors[colorName][shade] };
+                                }
+                                
+                                return { backgroundColor: `var(--${colorName}-${shade}, #ddd)` };
+                              }
+                              
                               if (option.value === 'bg-white') return { backgroundColor: '#ffffff' };
                               if (option.value === 'bg-black') return { backgroundColor: '#000000' };
                               if (option.value === 'bg-transparent') return { 
@@ -620,7 +740,7 @@ export function ColorPicker({
                             
                             return (
                               <button
-                                key={option.value}
+                                key={optionKey}
                                 title={option.label}
                                 className={`w-7 h-7 rounded-full border transition-all ${
                                   isSelected 
@@ -717,13 +837,13 @@ export function StyleOptionDropdown({
 
 // Text color options for the dropdown
 const textColorOptions: ColorOption[] = [
-  { value: "text-black", label: "text-black", id: "text-black" },
-  { value: "text-gray-950", label: "text-gray-950", id: "text-gray-950" },
-  { value: "text-gray-900", label: "text-gray-900", id: "text-gray-900" },
-  { value: "text-gray-800", label: "text-gray-800", id: "text-gray-800" },
-  { value: "text-gray-700", label: "text-gray-700", id: "text-gray-700" },
-  { value: "text-gray-600", label: "text-gray-600", id: "text-gray-600" },
-  { value: "text-gray-500", label: "text-gray-500", id: "text-gray-500" },
-  { value: "text-gray-400", label: "text-gray-400", id: "text-gray-400" },
-  { value: "text-white", label: "text-white", id: "text-white" },
+  { value: "text-black", label: "text-black", id: "text-black-option" },
+  { value: "text-gray-950", label: "text-gray-950", id: "text-gray-950-option" },
+  { value: "text-gray-900", label: "text-gray-900", id: "text-gray-900-option" },
+  { value: "text-gray-800", label: "text-gray-800", id: "text-gray-800-option" },
+  { value: "text-gray-700", label: "text-gray-700", id: "text-gray-700-option" },
+  { value: "text-gray-600", label: "text-gray-600", id: "text-gray-600-option" },
+  { value: "text-gray-500", label: "text-gray-500", id: "text-gray-500-option" },
+  { value: "text-gray-400", label: "text-gray-400", id: "text-gray-400-option" },
+  { value: "text-white", label: "text-white", id: "text-white-option" },
 ];

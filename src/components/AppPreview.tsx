@@ -140,9 +140,22 @@ export const AppPreview: React.FC = () => {
       }
     }
     
+    // Apply text color to main preview container
+    if (themeSettings.primaryText?.startsWith("text-")) {
+      const textColorMatch = themeSettings.primaryText.match(/text-([a-z]+)-(\d+)/);
+      if (textColorMatch) {
+        const colorFamily = textColorMatch[1];
+        const shade = textColorMatch[2];
+        if (tailwindColors[colorFamily]?.[shade]) {
+          // Apply the hex color directly to ensure it's visible even if Tailwind didn't generate the class
+          previewContainerRef.current.style.color = tailwindColors[colorFamily][shade];
+        }
+      }
+    }
+    
     // Apply styles to any elements in the preview with bg- classes
-    const allElements = previewContainerRef.current.querySelectorAll("[class*='bg-']");
-    allElements.forEach(el => {
+    const allBgElements = previewContainerRef.current.querySelectorAll("[class*='bg-']");
+    allBgElements.forEach(el => {
       const classList = Array.from(el.classList);
       const bgClass = classList.find(cls => cls.startsWith("bg-"));
       if (bgClass) {
@@ -152,6 +165,23 @@ export const AppPreview: React.FC = () => {
           const shade = bgColorMatch[2];
           if (tailwindColors[colorFamily]?.[shade]) {
             (el as HTMLElement).style.backgroundColor = tailwindColors[colorFamily][shade];
+          }
+        }
+      }
+    });
+    
+    // Apply styles to any elements in the preview with text- classes
+    const allTextElements = previewContainerRef.current.querySelectorAll("[class*='text-']");
+    allTextElements.forEach(el => {
+      const classList = Array.from(el.classList);
+      const textClass = classList.find(cls => cls.startsWith("text-") && !cls.startsWith("text-xs") && !cls.startsWith("text-sm") && !cls.startsWith("text-base") && !cls.startsWith("text-lg") && !cls.startsWith("text-xl"));
+      if (textClass) {
+        const textColorMatch = textClass.match(/text-([a-z]+)-(\d+)/);
+        if (textColorMatch) {
+          const colorFamily = textColorMatch[1];
+          const shade = textColorMatch[2];
+          if (tailwindColors[colorFamily]?.[shade]) {
+            (el as HTMLElement).style.color = tailwindColors[colorFamily][shade];
           }
         }
       }
