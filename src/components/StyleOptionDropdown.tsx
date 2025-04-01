@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAppContext } from "@/contexts/AppContext";
 import { ThemeSettings } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { tailwindColors } from "./AppPreview";
 
 interface StyleOption {
   value: string;
@@ -63,28 +66,28 @@ const curatedAccentColors: ColorOption[] = [
 
 // Complete list of all Tailwind colors
 const allTailwindColors: ColorOption[] = [
-  { value: "bg-slate-500", label: "bg-slate-500", id: "slate" },
-  { value: "bg-gray-500", label: "bg-gray-500", id: "gray" },
-  { value: "bg-zinc-500", label: "bg-zinc-500", id: "zinc" },
-  { value: "bg-neutral-500", label: "bg-neutral-500", id: "neutral" },
-  { value: "bg-stone-500", label: "bg-stone-500", id: "stone" },
-  { value: "bg-red-500", label: "bg-red-500", id: "red" },
-  { value: "bg-orange-500", label: "bg-orange-500", id: "orange" },
-  { value: "bg-amber-500", label: "bg-amber-500", id: "amber" },
-  { value: "bg-yellow-500", label: "bg-yellow-500", id: "yellow" },
-  { value: "bg-lime-500", label: "bg-lime-500", id: "lime" },
-  { value: "bg-green-500", label: "bg-green-500", id: "green" },
-  { value: "bg-emerald-500", label: "bg-emerald-500", id: "emerald" },
-  { value: "bg-teal-500", label: "bg-teal-500", id: "teal" },
-  { value: "bg-cyan-500", label: "bg-cyan-500", id: "cyan" },
-  { value: "bg-sky-500", label: "bg-sky-500", id: "sky" },
-  { value: "bg-blue-500", label: "bg-blue-500", id: "blue" },
-  { value: "bg-indigo-500", label: "bg-indigo-500", id: "indigo" },
-  { value: "bg-violet-500", label: "bg-violet-500", id: "violet" },
-  { value: "bg-purple-500", label: "bg-purple-500", id: "purple" },
-  { value: "bg-fuchsia-500", label: "bg-fuchsia-500", id: "fuchsia" },
-  { value: "bg-pink-500", label: "bg-pink-500", id: "pink" },
-  { value: "bg-rose-500", label: "bg-rose-500", id: "rose" },
+  { value: "slate", label: "Slate", id: "slate" },
+  { value: "gray", label: "Gray", id: "gray" },
+  { value: "zinc", label: "Zinc", id: "zinc" },
+  { value: "neutral", label: "Neutral", id: "neutral" },
+  { value: "stone", label: "Stone", id: "stone" },
+  { value: "red", label: "Red", id: "red" },
+  { value: "orange", label: "Orange", id: "orange" },
+  { value: "amber", label: "Amber", id: "amber" },
+  { value: "yellow", label: "Yellow", id: "yellow" },
+  { value: "lime", label: "Lime", id: "lime" },
+  { value: "green", label: "Green", id: "green" },
+  { value: "emerald", label: "Emerald", id: "emerald" },
+  { value: "teal", label: "Teal", id: "teal" },
+  { value: "cyan", label: "Cyan", id: "cyan" },
+  { value: "sky", label: "Sky", id: "sky" },
+  { value: "blue", label: "Blue", id: "blue" },
+  { value: "indigo", label: "Indigo", id: "indigo" },
+  { value: "violet", label: "Violet", id: "violet" },
+  { value: "purple", label: "Purple", id: "purple" },
+  { value: "fuchsia", label: "Fuchsia", id: "fuchsia" },
+  { value: "pink", label: "Pink", id: "pink" },
+  { value: "rose", label: "Rose", id: "rose" },
 ];
 
 // Base colors that don't fit in the groups
@@ -105,7 +108,9 @@ const getThemeColorOptions = (themeSettings: ThemeSettings) => [
 ];
 
 // Generate all color variations for a given color name
-const generateColorVariations = (colorName: string): ColorOption[] => {
+const generateColorVariations = (colorName: string, prefix = "bg-"): ColorOption[] => {
+  if (!colorName) return [];
+  
   const colorShades: Record<string, number[]> = {
     // Gray scales have extended range
     slate: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
@@ -133,18 +138,29 @@ const generateColorVariations = (colorName: string): ColorOption[] => {
     rose: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
   };
 
-  const shades = colorShades[colorName] || [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
+  // Handle special cases like 'bg-black' or if the color doesn't exist
+  if (!colorShades[colorName]) {
+    if (colorName === "black" || colorName === "white" || colorName === "transparent") {
+      return [{ 
+        value: `${prefix}${colorName}`, 
+        label: `${prefix}${colorName}`, 
+        id: `${colorName}` 
+      }];
+    }
+    return [];
+  }
 
+  const shades = colorShades[colorName];
   return shades.map((shade) => ({
-    value: `bg-${colorName}-${shade}`,
-    label: `bg-${colorName}-${shade}`,
+    value: `${prefix}${colorName}-${shade}`,
+    label: `${prefix}${colorName}-${shade}`,
     id: `${colorName}-${shade}`,
   }));
 };
 
 // Generate all color variations for all colors
 const allColorVariations: ColorOption[] = allTailwindColors.flatMap((color) =>
-  generateColorVariations(color.id || color.label.toLowerCase())
+  generateColorVariations(color.id || "", "bg-")
 );
 
 // Helper function to normalize color values for comparison
@@ -173,6 +189,13 @@ export function ColorPicker({
   const [activeTab, setActiveTab] = useState<"color" | "tailwind">("color");
   const [selectedColorFamily, setSelectedColorFamily] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // When value changes from outside, update customTailwindClass to match
+  useEffect(() => {
+    if (value && (value.startsWith('bg-') || value.startsWith('text-'))) {
+      setCustomTailwindClass(value);
+    }
+  }, [value]);
 
   // React to theme changes if using theme colors
   useEffect(() => {
@@ -265,7 +288,7 @@ export function ColorPicker({
     const matchesSearch =
       option.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
       option.label.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFamily = !selectedColorFamily || option.value.startsWith(`bg-${selectedColorFamily}-`);
+    const matchesFamily = !selectedColorFamily || option.value.includes(`${selectedColorFamily}-`);
     return matchesSearch && matchesFamily;
   });
 
@@ -274,22 +297,52 @@ export function ColorPicker({
     displayOptions.find((option) => normalizeColorValue(option.value) === normalizeColorValue(effectiveValue)) ||
     filteredTailwindColors.find((option) => normalizeColorValue(option.value) === normalizeColorValue(effectiveValue));
 
-  // Handle color selection
+  // Handle color selection with inline style fallback
   const handleColorSelect = (colorValue: string) => {
+    // Store the color value in state
     onChange(colorValue);
-    setIsCustomMode(false);
+    setCustomTailwindClass(colorValue);
+    
+    // Apply the fallback using a data attribute that can be styled via CSS
+    if (colorValue.startsWith('bg-')) {
+      try {
+        // Extract color information (e.g., "blue-500" from "bg-blue-500")
+        const colorMatch = colorValue.match(/bg-([a-z]+)-(\d+)/);
+        if (colorMatch) {
+          const colorName = colorMatch[1];
+          const shade = colorMatch[2];
+          
+          // Find the equivalent hex color to use as a fallback
+          document.querySelectorAll(`[data-color-value="${colorValue}"]`).forEach(el => {
+            // Map to get the actual hex color
+            const colorMap = getColorMap();
+            if (colorMap[colorName] && colorMap[colorName][shade]) {
+              (el as HTMLElement).style.backgroundColor = colorMap[colorName][shade];
+            }
+          });
+        }
+      } catch (e) {
+        console.error("Error applying color fallback:", e);
+      }
+    }
+  };
+
+  // Get a complete map of Tailwind colors to hex values
+  const getColorMap = (): Record<string, Record<string, string>> => {
+    return tailwindColors;
   };
 
   // Handle custom color selection
   const handleCustomColorSelect = () => {
     if (activeTab === "color" && customColor.startsWith("#")) {
       onChange(customColor);
+      setIsCustomMode(false);
     } else if (activeTab === "tailwind") {
       if (customTailwindClass.startsWith("bg-") || customTailwindClass.startsWith("text-")) {
         onChange(customTailwindClass);
+        setIsCustomMode(false);
       }
     }
-    setIsCustomMode(false);
   };
 
   // Color preview styles
@@ -360,7 +413,7 @@ export function ColorPicker({
     return (
       <>
         <div
-          className={effectiveValue.startsWith("bg-") ? effectiveValue : ""}
+          className={`w-7 h-7 rounded-full border border-gray-200 ${effectiveValue.startsWith("bg-") ? effectiveValue : ""}`}
           style={getColorPreviewStyle(effectiveValue)}
         />
         <span className="text-sm">
@@ -380,7 +433,7 @@ export function ColorPicker({
           {getDisplayValue()}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[320px] p-0">
+      <PopoverContent className="w-[320px] p-0 z-50">
         {!isCustomMode ? (
           <div className="p-3">
             {themeVariableName && (
@@ -403,16 +456,21 @@ export function ColorPicker({
                 </div>
               )}
 
-              {displayOptions.map((option) => (
+              {displayOptions.map((option) => {
+                // Check if this option is currently selected
+                const isSelected = option.value === value;
+                
+                return (
                 <div
                   key={option.id || option.value}
                   className={`w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center relative ${
-                    // Compare with effectiveValue instead of value to highlight the default theme color
-                    normalizeColorValue(effectiveValue) === normalizeColorValue(option.value)
-                      ? "after:absolute after:inset-[-2px] after:rounded-full after:ring-2 after:ring-blue-500"
-                      : ""
+                      isSelected ? "after:absolute after:inset-[-2px] after:rounded-full after:ring-2 after:ring-blue-500" : ""
                   }`}
-                  onClick={() => handleColorSelect(option.value)}
+                  onClick={() => {
+                    // Apply color directly and update internal state
+                    onChange(option.value);
+                    setCustomTailwindClass(option.value);
+                  }}
                   title={option.label}
                 >
                   {option.value?.startsWith("text-") ? (
@@ -428,7 +486,8 @@ export function ColorPicker({
                     />
                   )}
                 </div>
-              ))}
+                );
+              })}
 
               {!showOnlyThemeColors && (
                 <button
@@ -442,35 +501,37 @@ export function ColorPicker({
             </div>
           </div>
         ) : (
-          <div className="p-3">
-            <div className="flex justify-between border-b pb-2 mb-3">
-              <h3 className="font-medium text-sm">Custom Color</h3>
-              <button className="text-xs text-gray-500 hover:text-gray-700" onClick={() => setIsCustomMode(false)}>
-                Back to presets
-              </button>
-            </div>
-
-            {/* Tab buttons */}
-            <div className="flex border-b mb-3">
+          <div className="p-2">
+            {/* Compact Tabs */}
+            <div className="flex bg-gray-100 p-0.5 rounded-md mb-3">
               <button
-                className={`flex-1 py-2 text-sm font-medium ${
+                className={`flex-1 py-1 text-xs font-medium rounded ${
                   activeTab === "color"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
                 }`}
                 onClick={() => setActiveTab("color")}
               >
-                Color Picker
+                Color
               </button>
               <button
-                className={`flex-1 py-2 text-sm font-medium ${
+                className={`flex-1 py-1 text-xs font-medium rounded ${
                   activeTab === "tailwind"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
                 }`}
                 onClick={() => setActiveTab("tailwind")}
               >
-                Tailwind Class
+                Tailwind
+              </button>
+              <button
+                className="ml-1 p-1 text-xs text-gray-500 hover:text-gray-700 rounded hover:bg-gray-200"
+                onClick={() => setIsCustomMode(false)}
+                title="Back to presets"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                  <path fillRule="evenodd" d="M7.793 2.232a.75.75 0 01-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 010 10.75H10.75a.75.75 0 010-1.5h2.875a3.875 3.875 0 000-7.75H3.622l4.146 3.957a.75.75 0 01-1.036 1.085l-5.5-5.25a.75.75 0 010-1.085l5.5-5.25a.75.75 0 011.06.025z" clipRule="evenodd" />
+                </svg>
               </button>
             </div>
 
@@ -483,8 +544,14 @@ export function ColorPicker({
                       type="color"
                       value={customColor}
                       onChange={(e) => {
-                        setCustomColor(e.target.value);
+                        const val = e.target.value;
+                        setCustomColor(val);
                         setCustomTailwindClass("");
+                        
+                        // Apply hex color immediately
+                        if (val.startsWith('#')) {
+                          onChange(val);
+                        }
                       }}
                       className="w-8 h-8 rounded cursor-pointer"
                     />
@@ -496,6 +563,11 @@ export function ColorPicker({
                         if (val.startsWith("#") || val === "") {
                           setCustomColor(val);
                           setCustomTailwindClass("");
+                          
+                          // Apply valid hex colors immediately
+                          if (val.match(/^#[0-9A-Fa-f]{6}$/)) {
+                            onChange(val);
+                          }
                         }
                       }}
                       className="flex-1 border rounded px-2 py-1 text-sm"
@@ -505,37 +577,41 @@ export function ColorPicker({
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Search Tailwind Colors</label>
+                  <label className="block text-xs text-gray-600 mb-1">Search</label>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full border rounded px-2 py-1 text-sm"
+                    className="w-full border rounded px-2 py-1 text-xs"
                     placeholder="Search colors..."
                   />
                 </div>
 
                 {/* Color family pills */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1 mb-1">
                   <button
-                    className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
+                    className={`px-1.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
                       !selectedColorFamily ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                     onClick={() => setSelectedColorFamily(null)}
                   >
-                    All Colors
+                    All
                   </button>
                   {allTailwindColors.map((color) => (
                     <button
                       key={color.id}
-                      className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
+                      className={`px-1.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
                         selectedColorFamily === color.id
                           ? "bg-blue-100 text-blue-700"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
-                      onClick={() => setSelectedColorFamily(color.id || null)}
+                      onClick={() => {
+                        // Reset custom selection state when switching families
+                        setSelectedColorFamily(color.id || null);
+                        setCustomTailwindClass("");
+                      }}
                     >
                       {color.label}
                     </button>
@@ -543,53 +619,113 @@ export function ColorPicker({
                 </div>
 
                 {/* Color grid */}
-                <div className="max-h-48 overflow-y-auto">
+                <div className="max-h-40 overflow-y-auto pr-1 relative z-10">
                   {selectedColorFamily ? (
-                    <div className="space-y-2">
-                      {generateColorVariations(selectedColorFamily).map((option) => (
+                    <div className="space-y-1 overflow-visible">
+                      {generateColorVariations(selectedColorFamily).map((option) => {
+                        // Extract shade info to generate dynamic style
+                        const matches = option.value.match(/bg-([a-z]+)-(\d+)/);
+                        const colorName = matches ? matches[1] : '';
+                        const shade = matches ? matches[2] : '';
+                        
+                        // Check if this color is currently selected
+                        const isSelected = option.value === value;
+                        
+                        // Get color style for preview
+                        const getColorStyle = () => {
+                          // Use the tailwindColors import instead of duplicating the mapping
+                          if (option.value === 'bg-white') return { backgroundColor: '#ffffff' };
+                          if (option.value === 'bg-black') return { backgroundColor: '#000000' };
+                          if (option.value === 'bg-transparent') return { 
+                            backgroundColor: 'transparent', 
+                            backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', 
+                            backgroundSize: '10px 10px', 
+                            backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' 
+                          };
+                          
+                          if (tailwindColors[colorName] && tailwindColors[colorName][shade]) {
+                            return { backgroundColor: tailwindColors[colorName][shade] };
+                          }
+                          
+                          return { backgroundColor: `var(--${colorName}-${shade}, #ddd)` };
+                        };
+                        
+                        return (
                         <button
                           key={option.value}
-                          className="w-full flex items-center gap-3 p-2 rounded hover:bg-gray-50 transition-colors"
+                            className={`w-full flex items-center gap-2 p-1 rounded ${
+                              isSelected ? "bg-blue-50" : "hover:bg-gray-50"
+                            } transition-colors`}
                           onClick={() => {
-                            setCustomTailwindClass(option.value);
-                            setCustomColor("");
-                          }}
-                        >
-                          <div className={`w-8 h-8 rounded-full border border-gray-200 ${option.value}`} />
-                          <span className="text-sm text-gray-700">{option.label}</span>
-                          {customTailwindClass === option.value && (
-                            <span className="ml-auto text-blue-500">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            </span>
-                          )}
-                        </button>
-                      ))}
+                              // Apply color directly and update internal state
+                              onChange(option.value);
+                              setCustomTailwindClass(option.value);
+                            }}
+                          >
+                            <div 
+                              className={`w-6 h-6 rounded-full border border-gray-200 ${
+                                isSelected ? "ring-1 ring-blue-500" : ""
+                              }`}
+                              style={getColorStyle()}
+                            />
+                            <span className="text-xs text-gray-700">{option.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-2 overflow-visible">
                       {allTailwindColors.map((colorFamily) => (
-                        <div key={colorFamily.id} className="space-y-2">
-                          <div className="text-xs font-medium text-gray-500 px-2">{colorFamily.label}</div>
-                          <div className="flex flex-wrap gap-2">
-                            {generateColorVariations(colorFamily.id || colorFamily.label.toLowerCase()).map(
-                              (option) => (
+                        <div key={colorFamily.id} className="space-y-1">
+                          <div className="text-xs font-medium text-gray-500">{colorFamily.label}</div>
+                          <div className="flex flex-wrap gap-1 relative">
+                            {generateColorVariations(colorFamily.id || "").map((option) => {
+                              // Extract shade info to generate dynamic style
+                              const matches = option.value.match(/bg-([a-z]+)-(\d+)/);
+                              const colorName = matches ? matches[1] : '';
+                              const shade = matches ? matches[2] : '';
+                              
+                              // Check if this color is currently selected - compare only with actual value
+                              const isSelected = option.value === value;
+                              
+                              // Get color style for preview
+                              const getListColorStyle = () => {
+                                // Use the tailwindColors import instead of duplicating the mapping
+                                if (option.value === 'bg-white') return { backgroundColor: '#ffffff' };
+                                if (option.value === 'bg-black') return { backgroundColor: '#000000' };
+                                if (option.value === 'bg-transparent') return { 
+                                  backgroundColor: 'transparent', 
+                                  backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', 
+                                  backgroundSize: '10px 10px', 
+                                  backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' 
+                                };
+                                
+                                if (tailwindColors[colorName] && tailwindColors[colorName][shade]) {
+                                  return { backgroundColor: tailwindColors[colorName][shade] };
+                                }
+                                
+                                return { backgroundColor: `var(--${colorName}-${shade}, #ddd)` };
+                              };
+                              
+                              return (
                                 <button
                                   key={option.value}
-                                  className={`w-8 h-8 rounded-full border border-gray-200 hover:opacity-80 transition-opacity ${
-                                    customTailwindClass === option.value ? "ring-2 ring-blue-500 ring-offset-2" : ""
+                                  title={option.label}
+                                  className={`w-7 h-7 rounded-full border transition-all ${
+                                    isSelected 
+                                      ? "ring-2 ring-offset-1 ring-blue-500 border-blue-500" 
+                                      : "border-gray-200 hover:scale-110"
                                   }`}
                                   onClick={() => {
+                                    // Apply color directly and update internal state
+                                    onChange(option.value);
                                     setCustomTailwindClass(option.value);
-                                    setCustomColor("");
                                   }}
-                                  title={option.label}
+                                  style={getListColorStyle()}
                                 >
-                                  <div className={`w-full h-full rounded-full ${option.value}`} />
                                 </button>
-                              )
-                            )}
+                              );
+                            })}
                           </div>
                         </div>
                       ))}
@@ -607,21 +743,19 @@ export function ColorPicker({
                       if (val.startsWith("bg-") || val.startsWith("text-") || val === "") {
                         setCustomTailwindClass(val);
                         setCustomColor("");
+                        
+                        // Apply immediately when entering valid values
+                        if (val.startsWith("bg-") || val.startsWith("text-")) {
+                          onChange(val);
+                        }
                       }
                     }}
-                    className="w-full border rounded px-2 py-1 text-sm"
+                    className="w-full border rounded px-2 py-1 text-xs"
                     placeholder={isTextColor ? "text-gray-900" : "bg-blue-500"}
                   />
                 </div>
               </div>
             )}
-
-            <button
-              onClick={handleCustomColorSelect}
-              className="w-full bg-blue-500 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-600 mt-2"
-            >
-              Apply Custom Color
-            </button>
           </div>
         )}
       </PopoverContent>

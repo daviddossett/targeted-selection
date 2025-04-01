@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ElementType, useEffect } from "react";
+import React, { ElementType, useEffect, useRef } from "react";
 import { ComponentInstance, ComponentStyle } from "@/lib/types";
 import { useAppContext } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,15 @@ import { Separator } from "@/components/ui/separator";
 import { ResetIcon } from "@/components/icons/ResetIcon";
 import { cn } from "@/lib/utils";
 
+// Import the Tailwind color map from AppPreview
+import { tailwindColors } from "./AppPreview";
+
 interface ComponentRendererProps {
   instance: ComponentInstance;
+  nestedLevel?: number;
 }
 
-export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }) => {
+export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance, nestedLevel = 0 }) => {
   const {
     getComponentById,
     selectInstance,
@@ -27,11 +31,33 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   const [isHovered, setIsHovered] = React.useState(false);
   // Force re-render when themeSettings change by using a counter
   const [, setRenderCounter] = React.useState(0);
+  const componentRef = useRef<HTMLElement>(null);
 
   // Re-render when theme settings change
   useEffect(() => {
     setRenderCounter((prev) => prev + 1);
   }, [themeSettings]);
+
+  // Apply Tailwind color fallbacks using inline styles
+  useEffect(() => {
+    if (!componentRef.current) return;
+    
+    // Check if there's a background color class
+    if (instance.instanceStyles?.backgroundColor?.startsWith("bg-")) {
+      const hexColor = getHexFromTailwindClass(instance.instanceStyles.backgroundColor);
+      if (hexColor) {
+        componentRef.current.style.backgroundColor = hexColor;
+      }
+    }
+    
+    // Check if there's a text color class
+    if (instance.instanceStyles?.color?.startsWith("text-")) {
+      const hexColor = getHexFromTailwindClass(instance.instanceStyles.color);
+      if (hexColor) {
+        componentRef.current.style.color = hexColor;
+      }
+    }
+  }, [instance.instanceStyles?.backgroundColor, instance.instanceStyles?.color]);
 
   if (!component) {
     return <div>Component not found: {instance.componentId}</div>;
@@ -48,9 +74,9 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
   const isSelected = selectedInstanceId === instance.id;
 
   // Selection and hover classes
-  const selectionClasses = isSelected
+  const selectionClasses = isSelected && editorMode !== "preview"
     ? "outline outline-3 outline-blue-500 outline-offset-2 relative"
-    : isSelectMode
+    : isSelectMode && editorMode !== "preview"
     ? "outline outline-dashed outline-gray-300 outline-offset-2 cursor-pointer relative"
     : "";
 
@@ -100,7 +126,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
 
   const renderChildren = () => {
     if (!instance.children || instance.children.length === 0) return null;
-    return instance.children.map((child) => <ComponentRenderer key={child.id} instance={child} />);
+    return instance.children.map((child) => <ComponentRenderer key={child.id} instance={child} nestedLevel={nestedLevel + 1} />);
   };
 
   // Get combined styles (merge default styles with instance overrides)
@@ -444,4 +470,26 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ instance }
     default:
       return <div>Unknown component type: {component.type}</div>;
   }
+};
+
+// Add a utility function to get hex color from Tailwind class
+export const getHexFromTailwindClass = (className: string): string | null => {
+  if (!className) return null;
+  
+  // Extract color type (bg or text)
+  const prefix = className.startsWith("bg-") ? "bg-" : 
+                 className.startsWith("text-") ? "text-" : null;
+  
+  if (!prefix) return null;
+  
+  // Handle basic format: bg-{color}-{shade}
+  const basicMatch = className.match(new RegExp(`${prefix}([a-z]+)-([0-9]+)`));
+  if (basicMatch) {
+    const colorFamily = basicMatch[1];
+    const shade = basicMatch[2];
+    
+    return tailwindColors[colorFamily]?.[shade] || null;
+  }
+  
+  return null;
 };
